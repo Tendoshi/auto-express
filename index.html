@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTO EXPRESS | Vente & Location de Véhicules</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts : Raleway & Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Raleway', sans-serif; background-color: #0b0f17; color: #ffffff; }
+        h1, h2, h3, h4, .font-heading { font-family: 'Montserrat', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#0b0f17] text-white antialiased">
+
+    <!-- 1. HEADER REIGN -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-[#0b0f17]/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            
+            <!-- Logo -->
+            <a href="#" class="text-lg font-light tracking-[0.25em] text-white uppercase font-heading">
+                AUTO <span class="font-normal text-white/60">| EXPRESS</span>
+            </a>
+
+            <!-- Navigation avec Dropdowns -->
+            <nav class="hidden md:flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-white/70">
+                
+                <!-- CATALOGUE -->
+                <div class="relative group">
+                    <a href="#catalogue" class="px-4 py-2 rounded border border-transparent hover:border-white/10 hover:bg-white/10 hover:text-white transition-all duration-300 flex items-center gap-1.5">
+                        <span>Catalogue</span>
+                        <span class="text-[9px] opacity-60 group-hover:rotate-180 transition-transform duration-300">▾</span>
+                    </a>
+                    <div class="absolute top-full left-0 mt-2 w-48 bg-[#0e131d]/95 border border-white/10 backdrop-blur-xl rounded shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 p-2">
+                        <a href="catalogue.html" class="block px-3 py-2 text-[10px] text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors">Tous les Véhicules</a>
+                        <a href="#catalogue" onclick="setMode('vente')" class="block px-3 py-2 text-[10px] text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors">Véhicules à l'Achat</a>
+                        <a href="#catalogue" onclick="setMode('location')" class="block px-3 py-2 text-[10px] text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors">Véhicules en Location</a>
+                    </div>
+                </div>
+
+                <!-- NOS SERVICES -->
+                <div class="relative group">
+                    <a href="#services" class="px-4 py-2 rounded border border-transparent hover:border-white/10 hover:bg-white/10 hover:text-white transition-all duration-300 flex items-center gap-1.5">
+                        <span>Nos Services</span>
+                        <span class="text-[9px] opacity-60 group-hover:rotate-180 transition-transform duration-300">▾</span>
+                    </a>
+                    <div class="absolute top-full left-0 mt-2 w-52 bg-[#0e131d]/95 border border-white/10 backdrop-blur-xl rounded shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 p-2">
+                        <a href="#services" class="block px-3 py-2 text-[10px] text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors">Vente & Importation</a>
+                        <a href="#services" class="block px-3 py-2 text-[10px] text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors">Location sur-mesure</a>
+                        <a href="#services" class="block px-3 py-2 text-[10px] text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors">Inspection 50+ Points</a>
+                    </div>
+                </div>
+
+                <!-- POURQUOI NOUS -->
+                <div class="relative group">
+                    <a href="#about" class="px-4 py-2 rounded border border-transparent hover:border-white/10 hover:bg-white/10 hover:text-white transition-all duration-300 flex items-center gap-1.5">
+                        <span>Pourquoi Nous</span>
+                        <span class="text-[9px] opacity-60 group-hover:rotate-180 transition-transform duration-300">▾</span>
+                    </a>
+                    <div class="absolute top-full left-0 mt-2 w-48 bg-[#0e131d]/95 border border-white/10 backdrop-blur-xl rounded shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 p-2">
+                        <a href="#about" class="block px-3 py-2 text-[10px] text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors">Notre Philosophie</a>
+                        <a href="#about" class="block px-3 py-2 text-[10px] text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors">Nos Engagements</a>
+                    </div>
+                </div>
+
+                <!-- AVIS CLIENTS -->
+                <a href="#reviews" class="px-4 py-2 rounded border border-transparent hover:border-white/10 hover:bg-white/10 hover:text-white transition-all duration-300">
+                    Avis Clients
+                </a>
+
+                <!-- CONTACT -->
+                <a href="#contact" class="px-4 py-2 rounded border border-transparent hover:border-white/10 hover:bg-white/10 hover:text-white transition-all duration-300">
+                    Contact
+                </a>
+
+            </nav>
+
+            <!-- Mode Switcher -->
+            <div class="hidden sm:flex items-center gap-2 text-[10px] font-semibold tracking-widest">
+                <button id="btn-mode-vente" onclick="setMode('vente')" class="px-4 py-2 border border-white/30 text-white hover:bg-white/10 transition-all">
+                    ACHAT
+                </button>
+                <button id="btn-mode-location" onclick="setMode('location')" class="px-4 py-2 text-white/50 hover:text-white transition-all">
+                    LOCATION
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. HERO SECTION -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden border-b border-white/10">
+        <div class="absolute inset-0 z-0">
+            <img src="images/jeep-sahara/1.jpg" onerror="this.src='https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=1600'" class="w-full h-full object-cover opacity-25 filter brightness-75" alt="Background Hero">
+        </div>
+
+        <div class="relative z-10 max-w-4xl mx-auto px-4 text-center">
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-light text-white tracking-[0.15em] uppercase mb-6 leading-tight font-heading">
+                L'EXCELLENCE AUTOMOBILE <br>
+                <span class="font-extralight text-white/90">À PORTÉE DE MAIN.</span>
+            </h1>
+
+            <p class="max-w-xl mx-auto text-white/60 text-xs sm:text-sm tracking-widest uppercase mb-10 leading-relaxed font-light">
+                Découvrez un parc automobile d'exception. Vente comptant et location sur-mesure.
+            </p>
+
+            <div class="flex justify-center">
+                <a href="#catalogue" class="px-8 py-3.5 border border-white/40 hover:border-white bg-black/30 hover:bg-white/10 text-white text-xs font-medium tracking-[0.25em] uppercase transition-all duration-300 backdrop-blur-sm">
+                    EXPLORER LE CATALOGUE
+                </a>
+            </div>
+
+            <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 opacity-40">
+                <span class="block text-xl">⌄</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. VÉHICULES EN VEDETTE (Limité à 3 véhicules) -->
+    <section id="catalogue" class="py-20 max-w-7xl mx-auto px-6">
+        <div class="mb-12 text-center">
+            <span class="text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em] block mb-2">Sélection Exclusive</span>
+            <h2 class="text-2xl font-light tracking-[0.2em] text-white uppercase font-heading">Véhicules en Vedette</h2>
+            <div class="w-12 h-[1px] bg-white/30 mx-auto mt-4"></div>
+        </div>
+
+        <!-- Grille des 3 véhicules -->
+        <div id="car-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Injecté par JS -->
+        </div>
+
+        <!-- Bouton Redirection Catalogue Complet -->
+        <div class="mt-14 text-center">
+            <a href="catalogue.html" class="inline-block px-8 py-3.5 border border-white/30 hover:border-white bg-black/40 hover:bg-white/10 text-white text-xs font-medium tracking-[0.25em] uppercase transition-all duration-300 backdrop-blur-sm">
+                Voir tout le catalogue →
+            </a>
+        </div>
+    </section>
+
+    <!-- 4. NOS SERVICES -->
+    <section id="services" class="py-24 border-t border-white/10 bg-[#0e131d]/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-16 text-center">
+                <span class="text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em] block mb-2">Ce que nous proposons</span>
+                <h2 class="text-2xl sm:text-3xl font-light tracking-[0.2em] text-white uppercase font-heading">Nos Services On-Demand</h2>
+                <div class="w-12 h-[1px] bg-white/20 mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-8 border border-white/10 bg-[#0b0f17] hover:border-white/30 transition-all duration-300">
+                    <div class="text-2xl mb-4">🚗</div>
+                    <h3 class="text-sm font-medium tracking-widest text-white uppercase mb-3 font-heading">Vente & Importation</h3>
+                    <p class="text-white/60 text-xs leading-relaxed font-light">
+                        Accès à un parc automobile sélectionné ou commande sur-mesure depuis l'Europe et Dubaï avec dédouanement inclus.
+                    </p>
+                </div>
+
+                <div class="p-8 border border-white/10 bg-[#0b0f17] hover:border-white/30 transition-all duration-300">
+                    <div class="text-2xl mb-4">🔑</div>
+                    <h3 class="text-sm font-medium tracking-widest text-white uppercase mb-3 font-heading">Location VIP & Business</h3>
+                    <p class="text-white/60 text-xs leading-relaxed font-light">
+                        Location courte ou longue durée avec chauffeur privé ou en conduite libre pour vos déplacements professionnels et privés.
+                    </p>
+                </div>
+
+                <div class="p-8 border border-white/10 bg-[#0b0f17] hover:border-white/30 transition-all duration-300">
+                    <div class="text-2xl mb-4">🛠️</div>
+                    <h3 class="text-sm font-medium tracking-widest text-white uppercase mb-3 font-heading">Inspection 50+ Points</h3>
+                    <p class="text-white/60 text-xs leading-relaxed font-light">
+                        Chaque véhicule subit un diagnostic électronique et mécanique rigoureux avant toute mise à disposition.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. POURQUOI NOUS -->
+    <section id="about" class="py-24 border-t border-white/10 bg-[#0b0f17]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em] block mb-2">Pourquoi Choisir Auto Express</span>
+                    <h2 class="text-2xl sm:text-4xl font-light tracking-[0.15em] text-white uppercase font-heading mb-6 leading-tight">
+                        Une Expérience Automobile <br><span class="text-white/50">Transparente & Exclusivité.</span>
+                    </h2>
+                    <p class="text-white/60 text-xs leading-relaxed font-light mb-8">
+                        Chez Auto Express, nous redéfinissons les standards de l'achat et de la location automobile à Abidjan. Pas de vis cachés, des démarches administratives 100% gérées par nos soins, et un service après-vente réactif.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <span class="text-xs px-2 py-1 border border-white/20 text-white/70">01</span>
+                            <div>
+                                <h4 class="text-xs font-medium uppercase tracking-wider text-white">Transparence Totale</h4>
+                                <p class="text-white/50 text-[11px] font-light mt-1">Historique complet du véhicule et documents légaux en règle.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="text-xs px-2 py-1 border border-white/20 text-white/70">02</span>
+                            <div>
+                                <h4 class="text-xs font-medium uppercase tracking-wider text-white">Livraison Clé en Main</h4>
+                                <p class="text-white/50 text-[11px] font-light mt-1">Livraison directement à votre domicile ou à l'aéroport.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative border border-white/10 p-2 bg-[#0e131d]">
+                    <img src="https://images.pexels.com/photos/3764984/pexels-photo-3764984.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Auto Express Luxury" class="w-full h-80 object-cover opacity-80">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. AVIS CLIENTS -->
+    <section id="reviews" class="py-24 border-t border-white/10 bg-[#0e131d]/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-16 text-center">
+                <span class="text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em] block mb-2">Témoignages</span>
+                <h2 class="text-2xl sm:text-3xl font-light tracking-[0.2em] text-white uppercase font-heading">Avis de nos Clients</h2>
+                <div class="w-12 h-[1px] bg-white/20 mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-8 border border-white/10 bg-[#0b0f17]">
+                    <div class="text-yellow-500 text-xs mb-4">★★★★★</div>
+                    <p class="text-white/70 text-xs italic font-light leading-relaxed mb-6">
+                        "Service impeccable ! J'ai loué un SUV pour un séjour professionnel à Abidjan. La voiture était neuve et livrée directement à l'hôtel."
+                    </p>
+                    <div>
+                        <h4 class="text-xs font-medium uppercase tracking-widest text-white">Kouassi M.</h4>
+                        <span class="text-white/40 text-[10px] uppercase">Client Location</span>
+                    </div>
+                </div>
+
+                <div class="p-8 border border-white/10 bg-[#0b0f17]">
+                    <div class="text-yellow-500 text-xs mb-4">★★★★★</div>
+                    <p class="text-white/70 text-xs italic font-light leading-relaxed mb-6">
+                        "Achat de ma voiture en toute sérénité. Tout le dossier d'immatriculation a été géré en moins d'une semaine. Je recommande vivement !"
+                    </p>
+                    <div>
+                        <h4 class="text-xs font-medium uppercase tracking-widest text-white">Jean-Marc T.</h4>
+                        <span class="text-white/40 text-[10px] uppercase">Acheteur Récent</span>
+                    </div>
+                </div>
+
+                <div class="p-8 border border-white/10 bg-[#0b0f17]">
+                    <div class="text-yellow-500 text-xs mb-4">★★★★★</div>
+                    <p class="text-white/70 text-xs italic font-light leading-relaxed mb-6">
+                        "Réactivité sur WhatsApp au top. Réserver un véhicule en location prend à peine 5 minutes. Très pro."
+                    </p>
+                    <div>
+                        <h4 class="text-xs font-medium uppercase tracking-widest text-white">Sarah B.</h4>
+                        <span class="text-white/40 text-[10px] uppercase">Cliente Régulière</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#070a0f] text-white/70 border-t border-white/10 pt-16 pb-8 text-xs font-light">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
+                <div class="space-y-4">
+                    <a href="#" class="text-lg font-light tracking-[0.25em] text-white uppercase font-heading block">
+                        AUTO <span class="font-normal text-white/50">| EXPRESS</span>
+                    </a>
+                    <p class="text-white/50 text-[11px] leading-relaxed tracking-wider font-light">
+                        Leader de la vente et location de véhicules d'exception à Abidjan. Élégance, transparence et accompagnement personnalisé.
+                    </p>
+                    <div class="pt-2 flex items-center gap-4 text-white/60">
+                        <a href="#" class="hover:text-white transition-colors"><svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
+                        <a href="#" class="hover:text-white transition-colors"><svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+                        <a href="#" class="hover:text-white transition-colors"><svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white text-[11px] font-semibold tracking-[0.2em] uppercase mb-4 font-heading">Navigation</h4>
+                    <ul class="space-y-2.5 text-white/50 text-[11px] tracking-wider">
+                        <li><a href="catalogue.html" class="hover:text-white transition-colors">Notre Catalogue</a></li>
+                        <li><a href="#services" class="hover:text-white transition-colors">Nos Services</a></li>
+                        <li><a href="#about" class="hover:text-white transition-colors">Pourquoi Auto Express</a></li>
+                        <li><a href="#reviews" class="hover:text-white transition-colors">Avis Clients</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white text-[11px] font-semibold tracking-[0.2em] uppercase mb-4 font-heading">Prestations</h4>
+                    <ul class="space-y-2.5 text-white/50 text-[11px] tracking-wider">
+                        <li><a href="#" class="hover:text-white transition-colors">Achat Véhicule Neuf & Occasion</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Location Courte / Longue Durée</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Inspection & Expertise (50+ points)</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Assistance & Immatriculation</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white text-[11px] font-semibold tracking-[0.2em] uppercase mb-4 font-heading">Contact Us</h4>
+                    <ul class="space-y-2.5 text-white/50 text-[11px] tracking-wider">
+                        <li class="flex items-center gap-2">📍 <span>Abidjan, Côte d'Ivoire</span></li>
+                        <li class="flex items-center gap-2">📞 <span>+225 01 53 11 63 02</span></li>
+                        <li class="flex items-center gap-2">✉️ <span>contact@autoexpress.ci</span></li>
+                        <li class="pt-2">
+                            <span class="inline-block px-3 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white/70">
+                                🟢 Service WhatsApp 24/7
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-white/40 text-[10px] tracking-widest uppercase gap-4">
+                <p>Nikki Tendo | Auto Express © 2026. Tous droits réservés.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition-colors">Confidentialité</a>
+                    <a href="#" class="hover:text-white transition-colors">Conditions d'utilisation</a>
+                    <a href="#" class="hover:text-white transition-colors">Mentions Légales</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALE FICHE VÉHICULE -->
+    <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-[#0e131d] border border-white/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 relative text-white">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-white/50 hover:text-white text-xl p-2 font-bold">✕</button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                <div>
+                    <div class="h-64 sm:h-80 bg-black/40 rounded-xl overflow-hidden border border-white/10 mb-3">
+                        <img id="modal-main-img" src="" class="w-full h-full object-cover">
+                    </div>
+                    <div id="modal-thumbnails" class="flex gap-2 overflow-x-auto pb-2"></div>
+                </div>
+
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <span id="modal-tag" class="text-[10px] uppercase font-bold tracking-widest text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded"></span>
+                        <h2 id="modal-title" class="text-xl font-bold mt-3 mb-2"></h2>
+                        <div id="modal-price" class="text-2xl font-black text-amber-500 mb-6"></div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs bg-white/5 p-4 rounded-xl border border-white/10 mb-6">
+                            <div><span class="text-white/40 block">Moteur</span><strong id="spec-fuel"></strong></div>
+                            <div><span class="text-white/40 block">Boîte</span><strong id="spec-trans"></strong></div>
+                            <div><span class="text-white/40 block">Année</span><strong id="spec-year"></strong></div>
+                            <div><span class="text-white/40 block">Kilométrage</span><strong id="spec-km"></strong></div>
+                        </div>
+                    </div>
+
+                    <form onsubmit="sendWhatsAppOrder(event)" class="space-y-3">
+                        <input type="text" id="client-name" placeholder="Votre nom complet" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase rounded-lg transition-all">
+                            💬 Réserver sur WhatsApp
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

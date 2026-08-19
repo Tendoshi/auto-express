@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue Complet | AUTO EXPRESS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Raleway', sans-serif; background-color: #0b0f17; color: #ffffff; }
+        h1, h2, h3, h4, .font-heading { font-family: 'Montserrat', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#0b0f17] text-white antialiased page-catalogue">
+
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-[#0b0f17]/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="text-lg font-light tracking-[0.25em] text-white uppercase font-heading">
+                AUTO <span class="font-normal text-white/60">| EXPRESS</span>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-6 text-[11px] font-medium uppercase tracking-[0.2em] text-white/70">
+                <a href="index.html" class="hover:text-white transition-colors">Accueil</a>
+                <a href="catalogue.html" class="text-white font-bold border-b border-white pb-1">Catalogue</a>
+                <a href="index.html#services" class="hover:text-white transition-colors">Services</a>
+                <a href="index.html#about" class="hover:text-white transition-colors">Pourquoi Nous</a>
+            </nav>
+
+            <div class="flex items-center gap-2 text-[10px] font-semibold tracking-widest">
+                <button id="btn-mode-vente" onclick="setMode('vente')" class="px-4 py-2 bg-white text-black font-bold transition-all">
+                    ACHAT
+                </button>
+                <button id="btn-mode-location" onclick="setMode('location')" class="px-4 py-2 text-white/50 hover:text-white transition-all">
+                    LOCATION
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- BANNIÈRE EN-TÊTE -->
+    <section class="pt-32 pb-12 border-b border-white/10 bg-[#0e131d]/50">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <span class="text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em] block mb-2">Notre Collection</span>
+            <h1 class="text-3xl sm:text-4xl font-light tracking-[0.2em] uppercase font-heading">Catalogue Automobiles</h1>
+            <div class="w-12 h-[1px] bg-white/30 mx-auto mt-4"></div>
+        </div>
+    </section>
+
+    <!-- BARRE DE FILTRES ET RECHERCHE -->
+    <section class="py-8 border-b border-white/10 bg-[#0b0f17]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                
+                <!-- Recherche textuelle -->
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/40 mb-2 tracking-widest">Recherche</label>
+                    <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Marque ou modèle..." class="w-full bg-[#131924] border border-white/10 rounded-lg px-4 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/40">
+                </div>
+
+                <!-- Filtre Catégorie -->
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/40 mb-2 tracking-widest">Catégorie</label>
+                    <select id="filter-category" onchange="applyFilters()" class="w-full bg-[#131924] border border-white/10 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-white/40">
+                        <option value="all">Toutes les catégories</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Berline">Berline</option>
+                        <option value="4x4">4x4 / Off-Road</option>
+                    </select>
+                </div>
+
+                <!-- Filtre Motorisation -->
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/40 mb-2 tracking-widest">Motorisation</label>
+                    <select id="filter-fuel" onchange="applyFilters()" class="w-full bg-[#131924] border border-white/10 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-white/40">
+                        <option value="all">Toutes les motorisations</option>
+                        <option value="Essence">Essence</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Hybride">Hybride / Électrique</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- GRILLE DU CATALOGUE -->
+    <section class="py-16 max-w-7xl mx-auto px-6">
+        <div id="car-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Injecté par app.js -->
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#070a0f] text-white/70 border-t border-white/10 py-8 text-xs font-light text-center">
+        <p class="text-white/40 text-[10px] tracking-widest uppercase">Nikki Tendo | Auto Express © 2026. Tous droits réservés.</p>
+    </footer>
+
+    <!-- MODALE FICHE VÉHICULE -->
+    <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-[#0e131d] border border-white/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 relative text-white">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-white/50 hover:text-white text-xl p-2 font-bold">✕</button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                <div>
+                    <div class="h-64 sm:h-80 bg-black/40 rounded-xl overflow-hidden border border-white/10 mb-3">
+                        <img id="modal-main-img" src="" class="w-full h-full object-cover">
+                    </div>
+                    <div id="modal-thumbnails" class="flex gap-2 overflow-x-auto pb-2"></div>
+                </div>
+
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <span id="modal-tag" class="text-[10px] uppercase font-bold tracking-widest text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded"></span>
+                        <h2 id="modal-title" class="text-xl font-bold mt-3 mb-2"></h2>
+                        <div id="modal-price" class="text-2xl font-black text-amber-500 mb-6"></div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs bg-white/5 p-4 rounded-xl border border-white/10 mb-6">
+                            <div><span class="text-white/40 block">Moteur</span><strong id="spec-fuel"></strong></div>
+                            <div><span class="text-white/40 block">Boîte</span><strong id="spec-trans"></strong></div>
+                            <div><span class="text-white/40 block">Année</span><strong id="spec-year"></strong></div>
+                            <div><span class="text-white/40 block">Kilométrage</span><strong id="spec-km"></strong></div>
+                        </div>
+                    </div>
+
+                    <form onsubmit="sendWhatsAppOrder(event)" class="space-y-3">
+                        <input type="text" id="client-name" placeholder="Votre nom complet" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase rounded-lg transition-all">
+                            💬 Réserver sur WhatsApp
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

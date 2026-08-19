@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr" class="bg-[#070a0f] text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Express | Espace Administration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Raleway', sans-serif; }
+        .font-heading { font-family: 'Montserrat', sans-serif; }
+    </style>
+</head>
+<body class="p-6 max-w-6xl mx-auto">
+
+    <!-- ECRAN DE CONNEXION -->
+    <div id="login-screen" class="min-h-[80vh] flex items-center justify-center">
+        <div class="bg-[#0e131d] border border-white/10 p-8 rounded-2xl w-full max-w-md text-center">
+            <h1 class="text-xl font-bold uppercase tracking-widest text-white mb-6 font-heading">
+                AUTO <span class="text-white/50">| ADMIN</span>
+            </h1>
+            <input type="password" id="admin-pass" placeholder="Mot de passe secret" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-xs mb-4 text-white focus:outline-none focus:border-amber-500">
+            <button onclick="checkAuth()" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-white/90 transition-all">
+                Se connecter
+            </button>
+            <p id="auth-error" class="text-red-500 text-xs mt-3 hidden">Mot de passe incorrect !</p>
+        </div>
+    </div>
+
+    <!-- PANNEAU D'ADMINISTRATION -->
+    <div id="admin-panel" class="hidden space-y-12">
+        
+        <!-- Header Admin -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-6">
+            <div>
+                <h1 class="text-2xl font-bold uppercase tracking-widest font-heading">Panneau de Contrôle</h1>
+                <p class="text-xs text-white/50 mt-1">Ajoute, modifie ou supprime des véhicules de ton catalogue.</p>
+            </div>
+            <button onclick="logout()" class="px-4 py-2 border border-white/20 text-xs uppercase tracking-wider rounded hover:bg-white/10">Déconnexion</button>
+        </div>
+
+        <!-- FORMULAIRE D'AJOUT ET DE MODIFICATION -->
+        <div class="bg-[#0e131d] border border-white/10 p-6 rounded-2xl">
+            <h2 id="form-title" class="text-sm font-bold uppercase tracking-wider text-amber-400 mb-6 font-heading">➕ Ajouter un véhicule</h2>
+            
+            <form id="add-car-form" onsubmit="saveCar(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <!-- Champ caché pour stocker l'ID lors d'une modification -->
+                <input type="hidden" id="editing-car-id" value="">
+
+                <div>
+                    <label class="block text-white/50 mb-1">Marque</label>
+                    <input type="text" id="car-brand" required placeholder="ex: Mercedes" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+                <div>
+                    <label class="block text-white/50 mb-1">Modèle</label>
+                    <input type="text" id="car-model" required placeholder="ex: GLE Coupe" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+                <div>
+                    <label class="block text-white/50 mb-1">Année</label>
+                    <input type="text" id="car-year" required placeholder="ex: 2023" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-white/50 mb-1">Catégorie</label>
+                    <select id="car-category" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
+                        <option value="SUV">SUV</option>
+                        <option value="Berline">Berline</option>
+                        <option value="Sport">Sport</option>
+                        <option value="Pick-up">Pick-up</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-white/50 mb-1">Moteur</label>
+                    <input type="text" id="car-fuel" required placeholder="ex: Essence Hybride" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+                <div>
+                    <label class="block text-white/50 mb-1">Boîte de vitesse</label>
+                    <input type="text" id="car-trans" required placeholder="ex: Automatique" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-white/50 mb-1">Kilométrage</label>
+                    <input type="text" id="car-km" required placeholder="ex: 12 000 km" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+
+                <!-- Type d'offre -->
+                <div>
+                    <label class="block text-amber-400 font-bold mb-1">Type d'offre</label>
+                    <select id="car-offer-type" onchange="togglePriceFields()" class="w-full bg-[#0e131d] border border-amber-500/50 rounded px-3 py-2 text-amber-400 font-bold">
+                        <option value="both">Vente ET Location</option>
+                        <option value="vente">Vente uniquement</option>
+                        <option value="location">Location uniquement</option>
+                    </select>
+                </div>
+
+                <!-- Champs Prix -->
+                <div id="field-price-vente">
+                    <label class="block text-white/50 mb-1">Prix Vente (FCFA)</label>
+                    <input type="text" id="car-price-vente" placeholder="ex: 35 000 000" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+                <div id="field-price-loc">
+                    <label class="block text-white/50 mb-1">Prix Location (FCFA / jour)</label>
+                    <input type="text" id="car-price-loc" placeholder="ex: 80 000" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+
+                <!-- Gestion facile des dossiers d'images -->
+                <div class="md:col-span-2 bg-white/5 p-3 rounded-lg border border-white/10 grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-white/70 mb-1">Nom du sous-dossier dans <code>images/</code></label>
+                        <input type="text" id="car-folder" required placeholder="ex: mercedes-gle" class="w-full bg-[#070a0f] border border-white/10 rounded px-3 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-white/70 mb-1">Nombre total de photos (1.jpg, 2.jpg...)</label>
+                        <input type="number" id="car-photo-count" min="1" max="50" required placeholder="ex: 12" class="w-full bg-[#070a0f] border border-white/10 rounded px-3 py-2 text-white">
+                    </div>
+                </div>
+
+                <!-- Boutons de Soumission & Annulation -->
+                <div class="md:col-span-3 pt-2 flex gap-3">
+                    <button type="submit" id="submit-btn" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 font-bold uppercase tracking-widest text-xs rounded transition-all">
+                        Enregistrer le véhicule
+                    </button>
+                    <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="hidden px-6 py-3 bg-gray-600 hover:bg-gray-500 font-bold uppercase tracking-widest text-xs rounded transition-all text-white">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- LISTE & ACTION SUR LES VÉHICULES -->
+        <div class="bg-[#0e131d] border border-white/10 p-6 rounded-2xl">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-white mb-6 font-heading">📋 Véhicules en ligne</h2>
+            <div id="admin-car-list" class="space-y-3"></div>
+        </div>
+
+    </div>
+
+    <!-- SDKs Firebase (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <!-- LOGIQUE JAVASCRIPT ADMIN -->
+    <script>
+        const SECRET_PASS = "Noirmeilleur1";
+
+        // Configuration & Initialisation Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyCOWL2B0e1-juCYl-JibcAS41S13fcFcC8",
+          authDomain: "auto-express-4ddc6.firebaseapp.com",
+          projectId: "auto-express-4ddc6",
+          storageBucket: "auto-express-4ddc6.firebasestorage.app",
+          messagingSenderId: "848162847160",
+          appId: "1:848162847160:web:a778cab6fd507902afb74d",
+          measurementId: "G-7RQPWTR5XV"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        function checkAuth() {
+            const input = document.getElementById('admin-pass').value;
+            if(input === SECRET_PASS) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                renderAdminCars();
+            } else {
+                document.getElementById('auth-error').classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        function togglePriceFields() {
+            const offerType = document.getElementById('car-offer-type').value;
+            const venteInput = document.getElementById('car-price-vente');
+            const locInput = document.getElementById('car-price-loc');
+
+            if (offerType === 'vente') {
+                venteInput.required = true;
+                locInput.required = false;
+                locInput.parentElement.classList.add('opacity-30');
+                venteInput.parentElement.classList.remove('opacity-30');
+            } else if (offerType === 'location') {
+                locInput.required = true;
+                venteInput.required = false;
+                venteInput.parentElement.classList.add('opacity-30');
+                locInput.parentElement.classList.remove('opacity-30');
+            } else {
+                venteInput.required = true;
+                locInput.required = true;
+                venteInput.parentElement.classList.remove('opacity-30');
+                locInput.parentElement.classList.remove('opacity-30');
+            }
+        }
+
+        async function renderAdminCars() {
+            const list = document.getElementById('admin-car-list');
+            list.innerHTML = '<p class="text-white/50 text-xs">Chargement depuis Firebase...</p>';
+
+            try {
+                const snapshot = await db.collection('cars').get();
+                list.innerHTML = '';
+
+                if (snapshot.empty) {
+                    list.innerHTML = '<p class="text-white/40 text-xs">Aucun véhicule enregistré sur Firebase.</p>';
+                    localStorage.setItem('auto_express_cars', JSON.stringify([]));
+                    return;
+                }
+
+                const allCars = [];
+                snapshot.forEach(doc => {
+                    const car = { id: doc.id, ...doc.data() };
+                    allCars.push(car);
+
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl text-xs gap-4';
+                    
+                    let offerLabel = '';
+                    if (car.offerType === 'vente') offerLabel = '<span class="text-emerald-400 font-bold">[VENTE SEULE]</span>';
+                    else if (car.offerType === 'location') offerLabel = '<span class="text-amber-400 font-bold">[LOCATION SEULE]</span>';
+                    else offerLabel = '<span class="text-blue-400 font-bold">[VENTE & LOCATION]</span>';
+
+                    const firstImg = (car.images && car.images.length > 0) ? car.images[0] : '';
+                    const imgCount = car.images ? car.images.length : 0;
+
+                    item.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <img src="${firstImg}" class="w-12 h-12 object-cover rounded" alt="${car.brand}">
+                            <div>
+                                <strong class="text-white block text-sm">${car.brand} ${car.model} (${car.year}) ${offerLabel}</strong>
+                                <span class="text-white/50">${car.category} - Vente: ${car.priceVente || 'N/A'} | Loc: ${car.priceLocation || 'N/A'} | ${imgCount} photo(s)</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="editCar('${car.id}')" class="px-3 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-white font-bold rounded uppercase tracking-wider text-[10px] transition-all">
+                                Modifier
+                            </button>
+                            <button onclick="deleteCar('${car.id}')" class="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 text-white font-bold rounded uppercase tracking-wider text-[10px] transition-all">
+                                Supprimer
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+
+                // Synchronisation instantanée du localStorage pour le catalogue public
+                localStorage.setItem('auto_express_cars', JSON.stringify(allCars));
+
+            } catch (error) {
+                console.error("Erreur lors du chargement :", error);
+                list.innerHTML = '<p class="text-red-400 text-xs">Erreur lors de la récupération des données.</p>';
+            }
+        }
+
+        async function editCar(carId) {
+            try {
+                const doc = await db.collection('cars').doc(carId).get();
+                if (!doc.exists) return;
+
+                const car = doc.data();
+
+                document.getElementById('editing-car-id').value = carId;
+                document.getElementById('car-brand').value = car.brand || '';
+                document.getElementById('car-model').value = car.model || '';
+                document.getElementById('car-year').value = car.year || '';
+                document.getElementById('car-category').value = car.category || 'SUV';
+                document.getElementById('car-fuel').value = car.fuel || '';
+                document.getElementById('car-trans').value = car.transmission || '';
+                document.getElementById('car-km').value = car.km || '';
+                document.getElementById('car-offer-type').value = car.offerType || 'both';
+
+                togglePriceFields();
+
+                document.getElementById('car-price-vente').value = car.priceVente || '';
+                document.getElementById('car-price-loc').value = car.priceLocation || '';
+
+                if (car.images && car.images.length > 0) {
+                    const parts = car.images[0].split('/');
+                    if (parts.length >= 2) {
+                        document.getElementById('car-folder').value = parts[1];
+                    }
+                    document.getElementById('car-photo-count').value = car.images.length;
+                }
+
+                document.getElementById('form-title').innerText = '✏️ Modifier le véhicule';
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.innerText = 'Mettre à jour le véhicule';
+                submitBtn.className = 'flex-1 py-3 bg-amber-600 hover:bg-amber-500 font-bold uppercase tracking-widest text-xs rounded transition-all';
+                document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                console.error("Erreur lors de la récupération :", error);
+                alert("Impossible de charger les données du véhicule.");
+            }
+        }
+
+        function cancelEdit() {
+            document.getElementById('editing-car-id').value = '';
+            document.getElementById('add-car-form').reset();
+            togglePriceFields();
+
+            document.getElementById('form-title').innerText = '➕ Ajouter un véhicule';
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = 'Enregistrer le véhicule';
+            submitBtn.className = 'flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 font-bold uppercase tracking-widest text-xs rounded transition-all';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        }
+
+        async function saveCar(e) {
+            e.preventDefault();
+
+            const editingId = document.getElementById('editing-car-id').value;
+            const folderName = document.getElementById('car-folder').value.trim();
+            const photoCount = parseInt(document.getElementById('car-photo-count').value) || 1;
+
+            const imagesArray = [];
+            for (let i = 1; i <= photoCount; i++) {
+                imagesArray.push(`images/${folderName}/${i}.jpg`);
+            }
+
+            const offerType = document.getElementById('car-offer-type').value;
+            const carId = editingId ? editingId : 'car-' + Date.now();
+
+            const carData = {
+                id: carId,
+                brand: document.getElementById('car-brand').value.trim(),
+                model: document.getElementById('car-model').value.trim(),
+                year: document.getElementById('car-year').value.trim(),
+                category: document.getElementById('car-category').value,
+                fuel: document.getElementById('car-fuel').value.trim(),
+                transmission: document.getElementById('car-trans').value.trim(),
+                km: document.getElementById('car-km').value.trim(),
+                offerType: offerType,
+                priceVente: document.getElementById('car-price-vente').value.trim() || null,
+                priceLocation: document.getElementById('car-price-loc').value.trim() || null,
+                images: imagesArray
+            };
+
+            try {
+                await db.collection('cars').doc(carId).set(carData, { merge: true });
+                cancelEdit();
+                await renderAdminCars();
+                alert(editingId ? 'Véhicule mis à jour avec succès !' : 'Véhicule enregistré avec succès sur Firebase !');
+            } catch (error) {
+                console.error("Erreur lors de l'enregistrement :", error);
+                alert("Erreur lors de l'enregistrement du véhicule.");
+            }
+        }
+
+        async function deleteCar(carId) {
+            if(confirm('Es-tu sûr de vouloir supprimer ce véhicule ?')) {
+                try {
+                    await db.collection('cars').doc(carId).delete();
+                    if (document.getElementById('editing-car-id').value === carId) {
+                        cancelEdit();
+                    }
+                    await renderAdminCars();
+                } catch (error) {
+                    console.error("Erreur lors de la suppression :", error);
+                    alert("Erreur lors de la suppression.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
