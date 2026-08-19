@@ -1,4 +1,3 @@
-// Configuration Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCOWL2B0e1-juCYl-JibcAS41S13fcFcC8",
   authDomain: "auto-express-4ddc6.firebaseapp.com",
@@ -9,6 +8,5 @@ const firebaseConfig = {
   measurementId: "G-7RQPWTR5XV"
 };
 
-// Initialisation de Firebase & Firestore
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
