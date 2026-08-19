@@ -1,12 +1,55 @@
 // ==========================================
-// 1. CHARGEMENT STRICT DEPUIS LOCALSTORAGE
+// 1. DONNÉES PAR DÉFAUT & LECTURE LOCALSTORAGE
 // ==========================================
+const defaultCars = [
+    {
+        id: 'kia-sportage-2022',
+        brand: 'Kia',
+        model: 'Sportage',
+        year: '2022',
+        category: 'SUV',
+        fuel: 'Essence',
+        transmission: 'Automatique',
+        km: '25 000 km',
+        type: 'vente_location',
+        priceVente: '13 500 000',
+        priceLocation: '45 000',
+        images: [
+            'images/kia-sportage/1.jpg',
+            'images/kia-sportage/2.jpg',
+            'images/kia-sportage/3.jpg'
+        ]
+    },
+    {
+        id: 'jeep-sahara-2024',
+        brand: 'Jeep',
+        model: 'Wrangler Sahara',
+        year: '2024',
+        category: 'SUV',
+        fuel: 'Hybride',
+        transmission: 'Automatique',
+        km: '5 000 km',
+        type: 'vente_location',
+        priceVente: '45 000 000',
+        priceLocation: '100 000',
+        images: [
+            'images/jeep-sahara/1.jpg',
+            'images/jeep-sahara/2.jpg'
+        ]
+    }
+];
+
 function getStoredCars() {
     const data = localStorage.getItem('auto_express_cars');
-    if (!data) return [];
+    if (!data) {
+        localStorage.setItem('auto_express_cars', JSON.stringify(defaultCars));
+        return defaultCars;
+    }
 
     try {
         const rawCars = JSON.parse(data);
+        if (rawCars.length === 0) return defaultCars;
+
         return rawCars.map(car => {
             let offerType = car.type || car.offerType;
             if (!offerType) {
@@ -27,7 +70,7 @@ function getStoredCars() {
         });
     } catch (e) {
         console.error("Erreur de lecture du localStorage", e);
-        return [];
+        return defaultCars;
     }
 }
 
@@ -84,8 +127,9 @@ function renderCars(carList) {
 
         carCard.innerHTML = `
             <div>
-                <div class="relative h-56 bg-[#0c1017] overflow-hidden">
-                    <img src="${mainImg}" alt="${car.brand} ${car.model}" class="w-full h-full object-cover">
+                <!-- Image ajustée en object-contain -->
+                <div class="relative h-56 bg-[#0c1017] overflow-hidden p-2">
+                    <img src="${mainImg}" alt="${car.brand} ${car.model}" class="w-full h-full object-contain">
                     
                     <span class="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest text-white uppercase border border-white/10">
                         ${car.category}
@@ -189,7 +233,7 @@ function setMode(mode) {
 }
 
 // ==========================================
-// 6. MODALE & GALERIE
+// 6. MODALE & GALERIE DE PHOTOS
 // ==========================================
 function openModal(carId) {
     const cars = getStoredCars();
@@ -213,8 +257,9 @@ function openModal(carId) {
     document.getElementById('spec-km').textContent = selectedCar.km;
 
     const mainImg = document.getElementById('modal-main-img');
-    if (selectedCar.images && selectedCar.images.length > 0) {
+    if (mainImg && selectedCar.images && selectedCar.images.length > 0) {
         mainImg.src = selectedCar.images[0];
+        mainImg.className = "w-full h-full object-contain"; // Préserve le format complet dans la modale
     }
 
     const thumbnailsContainer = document.getElementById('modal-thumbnails');
