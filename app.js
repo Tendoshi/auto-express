@@ -1,109 +1,56 @@
 // ==========================================
-// 1. BASE DE DONNÉES PAR DÉFAUT
+// 1. CHARGEMENT STRICT DEPUIS LOCALSTORAGE
 // ==========================================
-const defaultCars = [
-    {
-        id: 'kia-sportage-2022',
-        brand: 'Kia',
-        model: 'Sportage',
-        year: '2022',
-        category: 'SUV',
-        fuel: 'Essence (4 Cyl.)',
-        transmission: 'Automatique',
-        km: '25 000 km',
-        priceVente: '13 500 000',
-        priceLocation: '45 000',
-        images: [
-            'images/kia-sportage/1.jpg',
-            'images/kia-sportage/2.jpg',
-            'images/kia-sportage/3.jpg',
-            'images/kia-sportage/4.jpg',
-            'images/kia-sportage/5.jpg',
-            'images/kia-sportage/6.jpg',
-            'images/kia-sportage/7.jpg',
-            'images/kia-sportage/8.jpg',
-            'images/kia-sportage/9.jpg',
-            'images/kia-sportage/10.jpg',
-            'images/kia-sportage/11.jpg',
-            'images/kia-sportage/12.jpg',
-            'images/kia-sportage/13.jpg',
-            'images/kia-sportage/14.jpg'
-        ]
-    },
-    {
-        id: 'jeep-sahara-2024',
-        brand: 'Jeep',
-        model: 'Wrangler Sahara',
-        year: '2024',
-        category: 'SUV',
-        fuel: 'Essence Hybride',
-        transmission: 'Automatique',
-        km: '5 000 km',
-        priceVente: '45 000 000',
-        priceLocation: '100 000',
-        images: [
-            'images/jeep-sahara/1.jpg',
-            'images/jeep-sahara/2.jpg',
-            'images/jeep-sahara/3.jpg',
-            'images/jeep-sahara/4.jpg',
-            'images/jeep-sahara/5.jpg',
-            'images/jeep-sahara/6.jpg',
-            'images/jeep-sahara/7.jpg',
-            'images/jeep-sahara/8.jpg',
-            'images/jeep-sahara/9.jpg',
-            'images/jeep-sahara/10.jpg',
-            'images/jeep-sahara/11.jpg',
-            'images/jeep-sahara/12.jpg'
-        ]
-    },
-    {
-        id: 'kia-k5-2022',
-        brand: 'Kia',
-        model: 'K5',
-        year: '2022',
-        category: 'Berline',
-        fuel: 'Essence',
-        transmission: 'Automatique',
-        km: '18 000 km',
-        priceVente: '14 000 000',
-        priceLocation: '50 000',
-        images: [
-            'images/kia-k5/1.jpg',
-            'images/kia-k5/2.jpg',
-            'images/kia-k5/3.jpg',
-            'images/kia-k5/4.jpg',
-            'images/kia-k5/5.jpg',
-            'images/kia-k5/6.jpg',
-            'images/kia-k5/7.jpg',
-            'images/kia-k5/8.jpg',
-            'images/kia-k5/9.jpg',
-            'images/kia-k5/10.jpg',
-            'images/kia-k5/11.jpg',
-            'images/kia-k5/12.jpg'
-        ]
-    }
-];
+function getStoredCars() {
+    const data = localStorage.getItem('auto_express_cars');
+    if (!data) return [];
 
-// Synchronisation avec le localStorage (connexion avec admin.html)
-if (!localStorage.getItem('auto_express_cars')) {
-    localStorage.setItem('auto_express_cars', JSON.stringify(defaultCars));
+    try {
+        const rawCars = JSON.parse(data);
+        return rawCars.map(car => {
+            let offerType = car.type || car.offerType;
+            if (!offerType) {
+                const hasVente = car.priceVente && car.priceVente !== 'N/A' && car.priceVente !== 'null';
+                const hasLoc = car.priceLocation && car.priceLocation !== 'N/A' && car.priceLocation !== 'null';
+
+                if (hasVente && hasLoc) offerType = 'vente_location';
+                else if (hasLoc) offerType = 'location';
+                else offerType = 'vente';
+            }
+
+            return {
+                ...car,
+                type: offerType,
+                priceVente: car.priceVente && car.priceVente !== 'null' ? car.priceVente : 'N/A',
+                priceLocation: car.priceLocation && car.priceLocation !== 'null' ? car.priceLocation : 'N/A'
+            };
+        });
+    } catch (e) {
+        console.error("Erreur de lecture du localStorage", e);
+        return [];
+    }
 }
 
-let cars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
-
-// État de l'application
-let currentMode = 'vente'; // 'vente' ou 'location'
+let currentMode = 'vente';
 let selectedCar = null;
 
+const isCataloguePage = document.body.classList.contains('page-catalogue');
+
 // ==========================================
-// 2. INITIALISATION AU CHARGEMENT
+// 2. INITIALISATION ET SYNCHRONISATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    renderCars(cars);
+    applyFilters();
+});
+
+window.addEventListener('storage', (e) => {
+    if (e.key === 'auto_express_cars') {
+        applyFilters();
+    }
 });
 
 // ==========================================
-// 3. AFFICHAGE DES CARTES DE VÉHICULES
+// 3. AFFICHAGE DES VÉHICULES
 // ==========================================
 function renderCars(carList) {
     const grid = document.getElementById('car-grid');
@@ -114,13 +61,15 @@ function renderCars(carList) {
     if (carList.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full text-center py-12 text-white/40 text-xs uppercase tracking-widest">
-                Aucun véhicule ne correspond à votre recherche.
+                Aucun véhicule disponible dans cette section.
             </div>
         `;
         return;
     }
 
-    carList.forEach(car => {
+    const carsToDisplay = isCataloguePage ? carList : carList.slice(0, 3);
+
+    carsToDisplay.forEach(car => {
         const isVente = currentMode === 'vente';
         const priceDisplay = isVente 
             ? `${car.priceVente} FCFA` 
@@ -135,24 +84,18 @@ function renderCars(carList) {
 
         carCard.innerHTML = `
             <div>
-                <!-- Image & Badges (Fond flouté + Véhicule entier) -->
-                <div class="relative h-56 bg-[#0c1017] overflow-hidden flex items-center justify-center">
-                    <!-- Arrière-plan flouté pour remplir le cadre -->
-                    <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-lg opacity-30 scale-110" alt="">
+                <div class="relative h-56 bg-[#0c1017] overflow-hidden">
+                    <img src="${mainImg}" alt="${car.brand} ${car.model}" class="w-full h-full object-cover">
                     
-                    <!-- Image principale nette et non coupée -->
-                    <img src="${mainImg}" alt="${car.brand} ${car.model}" class="relative z-10 w-full h-full object-contain p-2">
-                    
-                    <span class="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest text-white uppercase border border-white/10">
+                    <span class="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest text-white uppercase border border-white/10">
                         ${car.category}
                     </span>
 
-                    <span class="absolute top-3 right-3 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-medium tracking-wider text-white/80 uppercase border border-white/10">
+                    <span class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-medium tracking-wider text-white/80 uppercase border border-white/10">
                         📷 ${photoCount} photos
                     </span>
                 </div>
 
-                <!-- Infos Véhicule -->
                 <div class="p-6">
                     <h3 class="text-lg font-bold text-white font-heading mb-4 tracking-wide">
                         ${car.brand} ${car.model} (${car.year})
@@ -175,7 +118,6 @@ function renderCars(carList) {
                 </div>
             </div>
 
-            <!-- Prix & Bouton Action -->
             <div class="px-6 pb-6 pt-2 border-t border-[#1d2636]/50 flex items-center justify-between gap-4">
                 <div>
                     <span class="text-[9px] font-bold text-white/40 uppercase tracking-widest block">${priceLabel}</span>
@@ -193,10 +135,64 @@ function renderCars(carList) {
 }
 
 // ==========================================
-// 4. MODALE & GALERIE DE PHOTOS
+// 4. FILTRES DE RECHERCHE ET D'OFFRE
+// ==========================================
+function applyFilters() {
+    const cars = getStoredCars();
+
+    const searchInput = document.getElementById('filter-search');
+    const categorySelect = document.getElementById('filter-category');
+    const fuelSelect = document.getElementById('filter-fuel');
+
+    const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+    const catVal = categorySelect ? categorySelect.value : 'all';
+    const fuelVal = fuelSelect ? fuelSelect.value : 'all';
+
+    const filtered = cars.filter(car => {
+        if (currentMode === 'vente' && car.type === 'location') return false;
+        if (currentMode === 'location' && car.type === 'vente') return false;
+
+        const matchesSearch = `${car.brand} ${car.model}`.toLowerCase().includes(searchVal);
+        const matchesCat = (catVal === 'all') || (car.category === catVal);
+        const matchesFuel = (fuelVal === 'all') || (car.fuel.toLowerCase().includes(fuelVal.toLowerCase()));
+
+        return matchesSearch && matchesCat && matchesFuel;
+    });
+
+    renderCars(filtered);
+}
+
+// ==========================================
+// 5. BASCULEMENT MODE VENTE / LOCATION
+// ==========================================
+function setMode(mode) {
+    currentMode = mode;
+
+    const btnVente = document.getElementById('btn-mode-vente');
+    const btnLocation = document.getElementById('btn-mode-location');
+
+    if (mode === 'vente') {
+        btnVente?.classList.add('bg-white', 'text-black', 'font-bold');
+        btnVente?.classList.remove('text-white/50');
+        
+        btnLocation?.classList.remove('bg-white', 'text-black', 'font-bold');
+        btnLocation?.classList.add('text-white/50');
+    } else {
+        btnLocation?.classList.add('bg-white', 'text-black', 'font-bold');
+        btnLocation?.classList.remove('text-white/50');
+
+        btnVente?.classList.remove('bg-white', 'text-black', 'font-bold');
+        btnVente?.classList.add('text-white/50');
+    }
+
+    applyFilters();
+}
+
+// ==========================================
+// 6. MODALE & GALERIE
 // ==========================================
 function openModal(carId) {
-    cars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
+    const cars = getStoredCars();
     selectedCar = cars.find(c => c.id === carId);
     if (!selectedCar) return;
 
@@ -267,62 +263,7 @@ window.onclick = function(event) {
 };
 
 // ==========================================
-// 5. BASCULEMENT MODE VENTE / LOCATION
-// ==========================================
-function setMode(mode) {
-    currentMode = mode;
-
-    const btnVente = document.getElementById('btn-mode-vente');
-    const btnLocation = document.getElementById('btn-mode-location');
-    const indicator = document.getElementById('mode-indicator');
-
-    if (mode === 'vente') {
-        btnVente?.classList.add('bg-white', 'text-black');
-        btnVente?.classList.remove('text-white/50');
-        
-        btnLocation?.classList.remove('bg-white', 'text-black');
-        btnLocation?.classList.add('text-white/50');
-
-        if (indicator) indicator.textContent = 'MODE ACHAT';
-    } else {
-        btnLocation?.classList.add('bg-white', 'text-black');
-        btnLocation?.classList.remove('text-white/50');
-
-        btnVente?.classList.remove('bg-white', 'text-black');
-        btnVente?.classList.add('text-white/50');
-
-        if (indicator) indicator.textContent = 'MODE LOCATION';
-    }
-
-    applyFilters();
-}
-
-// ==========================================
-// 6. FILTRES DE RECHERCHE ET CATÉGORIES
-// ==========================================
-function applyFilters() {
-    cars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
-
-    const searchVal = document.getElementById('filter-search')?.value.toLowerCase() || '';
-    const catVal = document.getElementById('filter-category')?.value || 'all';
-    const fuelVal = document.getElementById('filter-fuel')?.value || 'all';
-
-    const filtered = cars.filter(car => {
-        if (currentMode === 'vente' && car.offerType === 'location') return false;
-        if (currentMode === 'location' && car.offerType === 'vente') return false;
-
-        const matchesSearch = `${car.brand} ${car.model}`.toLowerCase().includes(searchVal);
-        const matchesCat = (catVal === 'all') || (car.category === catVal);
-        const matchesFuel = (fuelVal === 'all') || (car.fuel === fuelVal);
-
-        return matchesSearch && matchesCat && matchesFuel;
-    });
-
-    renderCars(filtered);
-}
-
-// ==========================================
-// 7. ENVOI PAR WHATSAPP
+// 7. ENVOI WHATSAPP
 // ==========================================
 function sendWhatsAppOrder(e) {
     e.preventDefault();
@@ -336,6 +277,5 @@ function sendWhatsAppOrder(e) {
 
     const message = `Bonjour Auto Express, je suis *${clientName}*.\n\nJe suis intéressé(e) par *${typeMsg}* du véhicule suivant :\n🚘 *${selectedCar.brand} ${selectedCar.model} (${selectedCar.year})*\n💰 Prix : ${priceMsg}\n\nMerci de me recontacter pour finaliser la procédure.`;
 
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
 }
