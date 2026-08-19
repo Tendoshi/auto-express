@@ -1,50 +1,79 @@
 // ==========================================
-// 1. CHARGEMENT STRICT DEPUIS LOCALSTORAGE
+// 1. CHARGEMENT DEPUIS FIREBASE FIRESTORE & LOCALSTORAGE
 // ==========================================
-function getStoredCars() {
-    const data = localStorage.getItem('auto_express_cars');
-    if (!data) return [];
+async function getStoredCars() {
+    let cars = [];
 
+    // 1. Charger depuis Firebase Firestore
     try {
-        const rawCars = JSON.parse(data);
-        return rawCars.map(car => {
-            let offerType = car.type || car.offerType;
-            if (!offerType) {
-                const hasVente = car.priceVente && car.priceVente !== 'N/A' && car.priceVente !== 'null';
-                const hasLoc = car.priceLocation && car.priceLocation !== 'N/A' && car.priceLocation !== 'null';
-
-                if (hasVente && hasLoc) offerType = 'vente_location';
-                else if (hasLoc) offerType = 'location';
-                else offerType = 'vente';
-            }
-
-            return {
-                ...car,
-                type: offerType,
-                priceVente: car.priceVente && car.priceVente !== 'null' ? car.priceVente : 'N/A',
-                priceLocation: car.priceLocation && car.priceLocation !== 'null' ? car.priceLocation : 'N/A'
-            };
-        });
+        if (typeof db !== 'undefined') {
+            const snapshot = await db.collection('cars').get();
+            snapshot.forEach(doc => {
+                cars.push({ id: doc.id, ...doc.data() });
+            });
+        }
     } catch (e) {
-        console.error("Erreur de lecture du localStorage", e);
-        return [];
+        console.warn("Firebase non disponible, bascule sur localStorage", e);
     }
+
+    // 2. Si Firebase n'a rien renvoyé (ou en cas d'erreur), lire localStorage
+    if (cars.length === 0) {
+        const data = localStorage.getItem('auto_express_cars');
+        if (data) {
+            try {
+                cars = JSON.parse(data);
+            } catch (e) {
+                console.error("Erreur de lecture du localStorage", e);
+            }
+        }
+    }
+
+    // 3. Normaliser les données (champs par défaut et prix)
+    return cars.map(car => {
+        let offerType = car.type || car.offerType;
+        if (!offerType) {
+            const hasVente = car.priceVente && car.priceVente !== 'N/A' && car.priceVente !== 'null';
+            const hasLoc = car.priceLocation && car.priceLocation !== 'N/A' && car.priceLocation !== 'null';
+
+            if (hasVente && hasLoc) offerType = 'vente_location';
+            else if (hasLoc) offerType = 'location';
+            else offerType = 'vente';
+        }
+
+        return {
+            ...car,
+            brand: car.brand || 'Marque inconnue',
+            model: car.model || '',
+            year: car.year || 'N/A',
+            category: car.category || 'Toutes catégories',
+            fuel: car.fuel || 'Essence',
+            transmission: car.transmission || 'Automatique',
+            km: car.km || 'N/A',
+            images: Array.isArray(car.images) && car.images.length > 0 ? car.images : [],
+            type: offerType,
+            priceVente: car.priceVente && car.priceVente !== 'null' ? car.priceVente : (car.price || 'Sur demande'),
+            priceLocation: car.priceLocation && car.priceLocation !== 'null' ? car.priceLocation : 'Sur demande'
+        };
+    });
 }
 
 let currentMode = 'vente';
 let selectedCar = null;
+let allCarsList = [];
 
 const isCataloguePage = document.body.classList.contains('page-catalogue');
 
 // ==========================================
 // 2. INITIALISATION ET SYNCHRONISATION
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    allCarsList = await getStoredCars();
     applyFilters();
 });
 
-window.addEventListener('storage', (e) => {
+window.addEventListener('storage', async (e) => {
     if (e.key === 'auto_express_cars') {
+        allCarsList = await getStoredCars();
         applyFilters();
     }
 });
@@ -77,7 +106,7 @@ function renderCars(carList) {
         
         const priceLabel = isVente ? 'PRIX COMPTANT' : 'PRIX LOCATION';
         const photoCount = car.images ? car.images.length : 0;
-        const mainImg = (car.images && car.images.length > 0) ? car.images[0] : '';
+        const mainImg = photoCount > 0 ? car.images[0] : 'https://via.placeholder.com/600x400?text=Image+non+disponible';
 
         const carCard = document.createElement('div');
         carCard.className = 'bg-[#131924] border border-[#1d2636] rounded-xl overflow-hidden hover:border-white/30 transition-all duration-300 flex flex-col justify-between';
@@ -138,8 +167,6 @@ function renderCars(carList) {
 // 4. FILTRES DE RECHERCHE ET D'OFFRE
 // ==========================================
 function applyFilters() {
-    const cars = getStoredCars();
-
     const searchInput = document.getElementById('filter-search');
     const categorySelect = document.getElementById('filter-category');
     const fuelSelect = document.getElementById('filter-fuel');
@@ -148,13 +175,14 @@ function applyFilters() {
     const catVal = categorySelect ? categorySelect.value : 'all';
     const fuelVal = fuelSelect ? fuelSelect.value : 'all';
 
-    const filtered = cars.filter(car => {
+    const filtered = allCarsList.filter(car => {
         if (currentMode === 'vente' && car.type === 'location') return false;
         if (currentMode === 'location' && car.type === 'vente') return false;
 
-        const matchesSearch = `${car.brand} ${car.model}`.toLowerCase().includes(searchVal);
+        const brandModel = `${car.brand} ${car.model}`.toLowerCase();
+        const matchesSearch = brandModel.includes(searchVal);
         const matchesCat = (catVal === 'all') || (car.category === catVal);
-        const matchesFuel = (fuelVal === 'all') || (car.fuel.toLowerCase().includes(fuelVal.toLowerCase()));
+        const matchesFuel = (fuelVal === 'all') || (car.fuel && car.fuel.toLowerCase().includes(fuelVal.toLowerCase()));
 
         return matchesSearch && matchesCat && matchesFuel;
     });
@@ -189,56 +217,70 @@ function setMode(mode) {
 }
 
 // ==========================================
-// 6. MODALE & GALERIE
+// 6. MODALE & GALERIE DE PHOTOS
 // ==========================================
 function openModal(carId) {
-    const cars = getStoredCars();
-    selectedCar = cars.find(c => c.id === carId);
+    selectedCar = allCarsList.find(c => String(c.id) === String(carId));
     if (!selectedCar) return;
 
     const modal = document.getElementById('modal');
     if (!modal) return;
 
-    document.getElementById('modal-title').textContent = `${selectedCar.brand} ${selectedCar.model} (${selectedCar.year})`;
-    document.getElementById('modal-tag').textContent = selectedCar.category;
+    const titleEl = document.getElementById('modal-title');
+    if (titleEl) titleEl.textContent = `${selectedCar.brand} ${selectedCar.model} (${selectedCar.year})`;
+
+    const tagEl = document.getElementById('modal-tag');
+    if (tagEl) tagEl.textContent = selectedCar.category;
 
     const isVente = currentMode === 'vente';
-    document.getElementById('modal-price').textContent = isVente 
-        ? `${selectedCar.priceVente} FCFA` 
-        : `${selectedCar.priceLocation} FCFA / jour`;
+    const priceEl = document.getElementById('modal-price');
+    if (priceEl) {
+        priceEl.textContent = isVente 
+            ? `${selectedCar.priceVente} FCFA` 
+            : `${selectedCar.priceLocation} FCFA / jour`;
+    }
 
-    document.getElementById('spec-fuel').textContent = selectedCar.fuel;
-    document.getElementById('spec-trans').textContent = selectedCar.transmission;
-    document.getElementById('spec-year').textContent = selectedCar.year;
-    document.getElementById('spec-km').textContent = selectedCar.km;
+    const fuelEl = document.getElementById('spec-fuel');
+    if (fuelEl) fuelEl.textContent = selectedCar.fuel;
+
+    const transEl = document.getElementById('spec-trans');
+    if (transEl) transEl.textContent = selectedCar.transmission;
+
+    const yearEl = document.getElementById('spec-year');
+    if (yearEl) yearEl.textContent = selectedCar.year;
+
+    const kmEl = document.getElementById('spec-km');
+    if (kmEl) kmEl.textContent = selectedCar.km;
 
     const mainImg = document.getElementById('modal-main-img');
-    if (selectedCar.images && selectedCar.images.length > 0) {
+    if (mainImg && selectedCar.images && selectedCar.images.length > 0) {
         mainImg.src = selectedCar.images[0];
     }
 
     const thumbnailsContainer = document.getElementById('modal-thumbnails');
-    thumbnailsContainer.innerHTML = '';
+    if (thumbnailsContainer) {
+        thumbnailsContainer.innerHTML = '';
 
-    if (selectedCar.images) {
-        selectedCar.images.forEach((imgSrc, index) => {
-            const thumb = document.createElement('img');
-            thumb.src = imgSrc;
-            thumb.className = `w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all ${index === 0 ? 'border-white opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`;
-            
-            thumb.onclick = () => {
-                mainImg.src = imgSrc;
-                const allThumbs = thumbnailsContainer.querySelectorAll('img');
-                allThumbs.forEach(t => {
-                    t.classList.remove('border-white', 'opacity-100');
-                    t.classList.add('border-transparent', 'opacity-50');
-                });
-                thumb.classList.remove('border-transparent', 'opacity-50');
-                thumb.classList.add('border-white', 'opacity-100');
-            };
+        if (selectedCar.images && selectedCar.images.length > 0) {
+            selectedCar.images.forEach((imgSrc, index) => {
+                const thumb = document.createElement('img');
+                thumb.src = imgSrc;
+                thumb.className = `w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all ${index === 0 ? 'border-white opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`;
+                
+                thumb.onclick = () => {
+                    if (mainImg) mainImg.src = imgSrc;
+                    const allThumbs = thumbnailsContainer.querySelectorAll('img');
+                    allThumbs.forEach(t => {
+                        t.classList.remove('border-white', 'opacity-100');
+                        t.classList.add('border-transparent', 'opacity-50');
+                    });
+                    thumb.classList.remove('border-transparent', 'opacity-50');
+                    thumb.classList.add('border-white', 'opacity-100');
+                };
 
-            thumbnailsContainer.appendChild(thumb);
-        });
+                thumbnailsContainer.appendChild(thumb);
+            });
+        }
     }
 
     modal.classList.remove('hidden');
@@ -269,7 +311,8 @@ function sendWhatsAppOrder(e) {
     e.preventDefault();
     if (!selectedCar) return;
 
-    const clientName = document.getElementById('client-name').value;
+    const clientNameInput = document.getElementById('client-name');
+    const clientName = clientNameInput ? clientNameInput.value : 'Client';
     const phoneNumber = "2250142654427"; 
 
     const typeMsg = currentMode === 'vente' ? 'l\'ACHAT' : 'la LOCATION';
