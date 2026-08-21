@@ -13,7 +13,6 @@
 </head>
 <body class="p-6 max-w-6xl mx-auto">
 
-    <!-- ECRAN DE CONNEXION -->
     <div id="login-screen" class="min-h-[80vh] flex items-center justify-center">
         <div class="bg-[#0e131d] border border-white/10 p-8 rounded-2xl w-full max-w-md text-center">
             <h1 class="text-xl font-bold uppercase tracking-widest text-white mb-6 font-heading">
@@ -27,10 +26,7 @@
         </div>
     </div>
 
-    <!-- PANNEAU D'ADMINISTRATION -->
     <div id="admin-panel" class="hidden space-y-12">
-        
-        <!-- Header Admin -->
         <div class="flex items-center justify-between border-b border-white/10 pb-6">
             <div>
                 <h1 class="text-2xl font-bold uppercase tracking-widest font-heading">Panneau de Contrôle</h1>
@@ -39,12 +35,10 @@
             <button onclick="logout()" class="px-4 py-2 border border-white/20 text-xs uppercase tracking-wider rounded hover:bg-white/10">Déconnexion</button>
         </div>
 
-        <!-- FORMULAIRE D'AJOUT ET DE MODIFICATION -->
         <div class="bg-[#0e131d] border border-white/10 p-6 rounded-2xl">
             <h2 id="form-title" class="text-sm font-bold uppercase tracking-wider text-amber-400 mb-6 font-heading">➕ Ajouter un véhicule</h2>
             
             <form id="add-car-form" onsubmit="saveCar(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <!-- Champ caché pour stocker l'ID lors d'une modification -->
                 <input type="hidden" id="editing-car-id" value="">
 
                 <div>
@@ -83,7 +77,6 @@
                     <input type="text" id="car-km" required placeholder="ex: 12 000 km" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
                 </div>
 
-                <!-- Type d'offre -->
                 <div>
                     <label class="block text-amber-400 font-bold mb-1">Type d'offre</label>
                     <select id="car-offer-type" onchange="togglePriceFields()" class="w-full bg-[#0e131d] border border-amber-500/50 rounded px-3 py-2 text-amber-400 font-bold">
@@ -93,7 +86,6 @@
                     </select>
                 </div>
 
-                <!-- Champs Prix -->
                 <div id="field-price-vente">
                     <label class="block text-white/50 mb-1">Prix Vente (FCFA)</label>
                     <input type="text" id="car-price-vente" placeholder="ex: 35 000 000" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
@@ -103,7 +95,6 @@
                     <input type="text" id="car-price-loc" placeholder="ex: 80 000" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
                 </div>
 
-                <!-- Gestion facile des dossiers d'images -->
                 <div class="md:col-span-2 bg-white/5 p-3 rounded-lg border border-white/10 grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-white/70 mb-1">Nom du sous-dossier dans <code>images/</code></label>
@@ -115,7 +106,6 @@
                     </div>
                 </div>
 
-                <!-- Boutons de Soumission & Annulation -->
                 <div class="md:col-span-3 pt-2 flex gap-3">
                     <button type="submit" id="submit-btn" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 font-bold uppercase tracking-widest text-xs rounded transition-all">
                         Enregistrer le véhicule
@@ -127,43 +117,27 @@
             </form>
         </div>
 
-        <!-- LISTE & ACTION SUR LES VÉHICULES -->
         <div class="bg-[#0e131d] border border-white/10 p-6 rounded-2xl">
             <h2 class="text-sm font-bold uppercase tracking-wider text-white mb-6 font-heading">📋 Véhicules en ligne</h2>
             <div id="admin-car-list" class="space-y-3"></div>
         </div>
-
     </div>
 
-    <!-- SDKs Firebase (Compat v10) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <!-- SDKs Firebase v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- LOGIQUE JAVASCRIPT ADMIN -->
+    <script src="firebase-config.js"></script>
+
     <script>
         const SECRET_PASS = "Noirmeilleur1";
 
-        // Configuration & Initialisation Firebase
-        const firebaseConfig = {
-          apiKey: "AIzaSyCOWL2B0e1-juCYl-JibcAS41S13fcFcC8",
-          authDomain: "auto-express-4ddc6.firebaseapp.com",
-          projectId: "auto-express-4ddc6",
-          storageBucket: "auto-express-4ddc6.firebasestorage.app",
-          messagingSenderId: "848162847160",
-          appId: "1:848162847160:web:a778cab6fd507902afb74d",
-          measurementId: "G-7RQPWTR5XV"
-        };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
-
         function checkAuth() {
             const input = document.getElementById('admin-pass').value;
-            if(input === SECRET_PASS) {
+            if (input === SECRET_PASS) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('admin-panel').classList.remove('hidden');
+                togglePriceFields();
                 renderAdminCars();
             } else {
                 document.getElementById('auth-error').classList.remove('hidden');
@@ -207,14 +181,11 @@
 
                 if (snapshot.empty) {
                     list.innerHTML = '<p class="text-white/40 text-xs">Aucun véhicule enregistré sur Firebase.</p>';
-                    localStorage.setItem('auto_express_cars', JSON.stringify([]));
                     return;
                 }
 
-                const allCars = [];
                 snapshot.forEach(doc => {
                     const car = { id: doc.id, ...doc.data() };
-                    allCars.push(car);
 
                     const item = document.createElement('div');
                     item.className = 'flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl text-xs gap-4';
@@ -224,21 +195,12 @@
                     else if (car.offerType === 'location') offerLabel = '<span class="text-amber-400 font-bold">[LOCATION SEULE]</span>';
                     else offerLabel = '<span class="text-blue-400 font-bold">[VENTE & LOCATION]</span>';
 
-                    // Extraction robuste de l'image principale
-                    let firstImg = 'https://via.placeholder.com/80?text=Auto';
-                    if (Array.isArray(car.images) && car.images.length > 0) {
-                        firstImg = car.images[0];
-                    } else if (typeof car.images === 'string' && car.images.trim() !== '') {
-                        firstImg = car.images;
-                    } else if (car.image) {
-                        firstImg = car.image;
-                    }
-
-                    const imgCount = Array.isArray(car.images) ? car.images.length : (firstImg ? 1 : 0);
+                    const firstImg = (car.images && car.images.length > 0) ? car.images[0] : '';
+                    const imgCount = car.images ? car.images.length : 0;
 
                     item.innerHTML = `
                         <div class="flex items-center gap-4">
-                            <img src="${firstImg}" class="w-12 h-12 object-cover rounded border border-white/10" alt="${car.brand}" onerror="this.src='https://via.placeholder.com/80?text=Auto'">
+                            <img src="${firstImg}" class="w-12 h-12 object-cover rounded bg-black/40" alt="${car.brand}" onerror="this.src='https://via.placeholder.com/80?text=Auto'">
                             <div>
                                 <strong class="text-white block text-sm">${car.brand} ${car.model} (${car.year}) ${offerLabel}</strong>
                                 <span class="text-white/50">${car.category} - Vente: ${car.priceVente || 'N/A'} | Loc: ${car.priceLocation || 'N/A'} | ${imgCount} photo(s)</span>
@@ -255,9 +217,6 @@
                     `;
                     list.appendChild(item);
                 });
-
-                // Synchronisation instantanée du localStorage pour le catalogue public
-                localStorage.setItem('auto_express_cars', JSON.stringify(allCars));
 
             } catch (error) {
                 console.error("Erreur lors du chargement :", error);
@@ -287,7 +246,7 @@
                 document.getElementById('car-price-vente').value = car.priceVente || '';
                 document.getElementById('car-price-loc').value = car.priceLocation || '';
 
-                if (Array.isArray(car.images) && car.images.length > 0) {
+                if (car.images && car.images.length > 0) {
                     const parts = car.images[0].split('/');
                     if (parts.length >= 2) {
                         document.getElementById('car-folder').value = parts[1];
@@ -363,7 +322,7 @@
         }
 
         async function deleteCar(carId) {
-            if(confirm('Es-tu sûr de vouloir supprimer ce véhicule ?')) {
+            if (confirm('Es-tu sûr de vouloir supprimer ce véhicule ?')) {
                 try {
                     await db.collection('cars').doc(carId).delete();
                     if (document.getElementById('editing-car-id').value === carId) {
