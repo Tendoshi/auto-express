@@ -1,5 +1,5 @@
 // ==========================================
-// 1. BASE DE DONNÉES PAR DÉFAUT
+// 1. BASE DE DONNÉES PAR DÉFAUT & ÉTAT GLOBAL
 // ==========================================
 const defaultCars = [
     {
@@ -84,23 +84,45 @@ const defaultCars = [
     }
 ];
 
-// Synchronisation avec le localStorage (connexion avec admin.html)
-if (!localStorage.getItem('auto_express_cars')) {
-    localStorage.setItem('auto_express_cars', JSON.stringify(defaultCars));
-}
-
-let cars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
-
-// État de l'application
-let currentMode = 'vente'; // 'vente' ou 'location'
+let allCars = [];
+let currentMode = 'vente';
 let selectedCar = null;
 
 // ==========================================
-// 2. INITIALISATION AU CHARGEMENT
+// 2. INITIALISATION ET CHARGEMENT (FIRESTORE)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    renderCars(cars);
+    fetchCarsFromFirestore();
 });
+
+async function fetchCarsFromFirestore() {
+    const grid = document.getElementById('car-grid');
+    if (grid) {
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-12 text-white/40 text-xs uppercase tracking-widest">
+                Chargement des véhicules...
+            </div>
+        `;
+    }
+
+    try {
+        if (typeof db !== 'undefined') {
+            const snapshot = await db.collection('cars').get();
+            if (!snapshot.empty) {
+                allCars = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } else {
+                allCars = [...defaultCars];
+            }
+        } else {
+            allCars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
+        }
+    } catch (error) {
+        console.error('Erreur Firestore :', error);
+        allCars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
+    }
+
+    applyFilters();
+}
 
 // ==========================================
 // 3. AFFICHAGE DES CARTES DE VÉHICULES
@@ -111,7 +133,11 @@ function renderCars(carList) {
 
     grid.innerHTML = '';
 
-    if (carList.length === 0) {
+    // Détection : si la page n'est pas "catalogue.html", c'est la page d'accueil (limite à 3)
+    const isCataloguePage = document.body.classList.contains('page-catalogue');
+    const carsToDisplay = isCataloguePage ? carList : carList.slice(0, 3);
+
+    if (carsToDisplay.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full text-center py-12 text-white/40 text-xs uppercase tracking-widest">
                 Aucun véhicule ne correspond à votre recherche.
@@ -120,7 +146,7 @@ function renderCars(carList) {
         return;
     }
 
-    carList.forEach(car => {
+    carsToDisplay.forEach(car => {
         const isVente = currentMode === 'vente';
         const priceDisplay = isVente 
             ? `${car.priceVente} FCFA` 
@@ -135,12 +161,9 @@ function renderCars(carList) {
 
         carCard.innerHTML = `
             <div>
-                <!-- Image & Badges (Fond flouté + Véhicule entier) -->
+                <!-- Image & Badges -->
                 <div class="relative h-56 bg-[#0c1017] overflow-hidden flex items-center justify-center">
-                    <!-- Arrière-plan flouté pour remplir le cadre -->
                     <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-lg opacity-30 scale-110" alt="">
-                    
-                    <!-- Image principale nette et non coupée -->
                     <img src="${mainImg}" alt="${car.brand} ${car.model}" class="relative z-10 w-full h-full object-contain p-2">
                     
                     <span class="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest text-white uppercase border border-white/10">
@@ -196,8 +219,7 @@ function renderCars(carList) {
 // 4. MODALE & GALERIE DE PHOTOS
 // ==========================================
 window.openModal = function(carId) {
-    cars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
-    selectedCar = cars.find(c => c.id === carId);
+    selectedCar = allCars.find(c => c.id === carId);
     if (!selectedCar) return;
 
     const modal = document.getElementById('modal');
@@ -267,7 +289,7 @@ window.onclick = function(event) {
 };
 
 // ==========================================
-// 5. BASCULEMENT MODE VENTE / LOCATION (CORRIGÉ)
+// 5. BASCULEMENT MODE VENTE / LOCATION
 // ==========================================
 window.setMode = function(mode) {
     currentMode = mode;
@@ -279,17 +301,13 @@ window.setMode = function(mode) {
     if (!btnVente || !btnLocation) return;
 
     if (mode === 'vente') {
-        // Vente actif : fond blanc, texte noir
-        btnVente.className = "px-4 py-2 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg transition-all duration-300";
-        // Location inactif : fond transparent, texte blanc/50
-        btnLocation.className = "px-4 py-2 bg-transparent text-white/50 font-bold text-xs uppercase tracking-wider rounded-lg hover:text-white transition-all duration-300";
+        btnVente.className = "px-4 py-2 bg-white text-black font-bold transition-all";
+        btnLocation.className = "px-4 py-2 text-white/50 hover:text-white transition-all";
 
         if (indicator) indicator.textContent = 'MODE ACHAT';
     } else {
-        // Location actif : fond blanc, texte noir
-        btnLocation.className = "px-4 py-2 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg transition-all duration-300";
-        // Vente inactif : fond transparent, texte blanc/50
-        btnVente.className = "px-4 py-2 bg-transparent text-white/50 font-bold text-xs uppercase tracking-wider rounded-lg hover:text-white transition-all duration-300";
+        btnLocation.className = "px-4 py-2 bg-white text-black font-bold transition-all";
+        btnVente.className = "px-4 py-2 text-white/50 hover:text-white transition-all";
 
         if (indicator) indicator.textContent = 'MODE LOCATION';
     }
@@ -301,19 +319,17 @@ window.setMode = function(mode) {
 // 6. FILTRES DE RECHERCHE ET CATÉGORIES
 // ==========================================
 window.applyFilters = function() {
-    cars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
-
     const searchVal = document.getElementById('filter-search')?.value.toLowerCase() || '';
     const catVal = document.getElementById('filter-category')?.value || 'all';
     const fuelVal = document.getElementById('filter-fuel')?.value || 'all';
 
-    const filtered = cars.filter(car => {
+    const filtered = allCars.filter(car => {
         if (currentMode === 'vente' && car.offerType === 'location') return false;
         if (currentMode === 'location' && car.offerType === 'vente') return false;
 
         const matchesSearch = `${car.brand} ${car.model}`.toLowerCase().includes(searchVal);
         const matchesCat = (catVal === 'all') || (car.category === catVal);
-        const matchesFuel = (fuelVal === 'all') || (car.fuel === fuelVal);
+        const matchesFuel = (fuelVal === 'all') || (car.fuel === fuelVal || car.fuel.includes(fuelVal));
 
         return matchesSearch && matchesCat && matchesFuel;
     });
