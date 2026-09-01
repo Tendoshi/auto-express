@@ -40,6 +40,7 @@
             
             <form id="add-car-form" onsubmit="saveCar(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                 <input type="hidden" id="editing-car-id" value="">
+                <input type="hidden" id="editing-car-created-at" value="">
 
                 <div>
                     <label class="block text-white/50 mb-1">Marque</label>
@@ -51,7 +52,7 @@
                 </div>
                 <div>
                     <label class="block text-white/50 mb-1">Année</label>
-                    <input type="text" id="car-year" required placeholder="ex: 2023" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                    <input type="text" id="car-year" placeholder="ex: 2023" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
                 </div>
 
                 <div>
@@ -63,18 +64,77 @@
                         <option value="Pick-up">Pick-up</option>
                     </select>
                 </div>
+
+                <!-- CARBURANT (Séparé) -->
                 <div>
-                    <label class="block text-white/50 mb-1">Moteur</label>
-                    <input type="text" id="car-fuel" required placeholder="ex: Essence Hybride" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                    <label class="block text-white/50 mb-1">Carburant / Propulsion</label>
+                    <select id="car-fuel" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
+                        <option value="Essence">Essence</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Électrique">Électrique</option>
+                        <option value="Hybride">Hybride</option>
+                    </select>
                 </div>
+
+                <!-- ARCHITECTURE / CYLINDRES (Option vide ajoutée) -->
+                <div>
+                    <label class="block text-white/50 mb-1">Architecture / Cylindres</label>
+                    <select id="car-cylinders" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
+                        <option value="">-- Non spécifié --</option>
+                        <option value="3 Cylindres">3 Cylindres</option>
+                        <option value="4 Cylindres">4 Cylindres</option>
+                        <option value="6 Cylindres">6 Cylindres</option>
+                        <option value="V6">V6</option>
+                        <option value="V8">V8</option>
+                        <option value="V12">V12</option>
+                        <option value="Autre / Non spécifié">Autre / Non spécifié</option>
+                    </select>
+                </div>
+
+                <!-- BOÎTE DE VITESSE (Transformé en select) -->
                 <div>
                     <label class="block text-white/50 mb-1">Boîte de vitesse</label>
-                    <input type="text" id="car-trans" required placeholder="ex: Automatique" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                    <select id="car-trans" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
+                        <option value="Automatique">Automatique</option>
+                        <option value="Manuelle">Manuelle</option>
+                    </select>
                 </div>
 
                 <div>
                     <label class="block text-white/50 mb-1">Kilométrage</label>
-                    <input type="text" id="car-km" required placeholder="ex: 12 000 km" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                    <input type="text" id="car-km" placeholder="ex: 12 000 km" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-white/50 mb-1">Démarrage</label>
+                    <select id="car-start" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
+                        <option value="Start/Stop">Start / Stop (Bouton)</option>
+                        <option value="Clé">Démarrage à clé</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-white/50 mb-1">Climatisation</label>
+                    <select id="car-ac" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
+                        <option value="Oui">Climatisé</option>
+                        <option value="Non">Non climatisé</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/40 mb-2 tracking-widest">Véhicule importé</label>
+                    <select id="car-imported" class="w-full bg-[#131924] border border-white/10 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-white/40">
+                        <option value="Oui">Oui</option>
+                        <option value="Non">Non</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-white/50 mb-1">Papiers</label>
+                    <select id="car-papers" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
+                        <option value="Oui">Tous papiers à jour</option>
+                        <option value="Non">Papiers non à jour</option>
+                    </select>
                 </div>
 
                 <div>
@@ -95,14 +155,14 @@
                     <input type="text" id="car-price-loc" placeholder="ex: 80 000" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
                 </div>
 
-                <div class="md:col-span-2 bg-white/5 p-3 rounded-lg border border-white/10 grid grid-cols-2 gap-3">
+                <div class="md:col-span-3 bg-white/5 p-3 rounded-lg border border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-white/70 mb-1">Nom du sous-dossier dans <code>images/</code></label>
-                        <input type="text" id="car-folder" required placeholder="ex: mercedes-gle" class="w-full bg-[#070a0f] border border-white/10 rounded px-3 py-2 text-white">
+                        <input type="text" id="car-folder" placeholder="ex: mercedes-gle" class="w-full bg-[#070a0f] border border-white/10 rounded px-3 py-2 text-white">
                     </div>
                     <div>
                         <label class="block text-white/70 mb-1">Nombre total de photos (1.jpg, 2.jpg...)</label>
-                        <input type="number" id="car-photo-count" min="1" max="50" required placeholder="ex: 12" class="w-full bg-[#070a0f] border border-white/10 rounded px-3 py-2 text-white">
+                        <input type="number" id="car-photo-count" min="1" max="50" placeholder="ex: 12" class="w-full bg-[#070a0f] border border-white/10 rounded px-3 py-2 text-white">
                     </div>
                 </div>
 
@@ -126,7 +186,6 @@
     <!-- SDKs Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <script src="firebase-config.js"></script>
 
     <script>
@@ -161,7 +220,7 @@
             } else if (offerType === 'location') {
                 locInput.required = true;
                 venteInput.required = false;
-                venteInput.parentElement.classList.add('opacity-30');
+                locInput.parentElement.classList.add('opacity-30');
                 locInput.parentElement.classList.remove('opacity-30');
             } else {
                 venteInput.required = true;
@@ -186,7 +245,6 @@
 
                 snapshot.forEach(doc => {
                     const car = { id: doc.id, ...doc.data() };
-
                     const item = document.createElement('div');
                     item.className = 'flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl text-xs gap-4';
                     
@@ -197,13 +255,17 @@
 
                     const firstImg = (car.images && car.images.length > 0) ? car.images[0] : '';
                     const imgCount = car.images ? car.images.length : 0;
+                    
+                    const fuelText = car.fuel || 'Essence';
+                    const cylText = car.cylinders ? ` (${car.cylinders})` : '';
+                    const fuelDisplay = `${fuelText}${cylText}`;
 
                     item.innerHTML = `
                         <div class="flex items-center gap-4">
                             <img src="${firstImg}" class="w-12 h-12 object-cover rounded bg-black/40" alt="${car.brand}" onerror="this.src='https://via.placeholder.com/80?text=Auto'">
                             <div>
-                                <strong class="text-white block text-sm">${car.brand} ${car.model} (${car.year}) ${offerLabel}</strong>
-                                <span class="text-white/50">${car.category} - Vente: ${car.priceVente || 'N/A'} | Loc: ${car.priceLocation || 'N/A'} | ${imgCount} photo(s)</span>
+                                <strong class="text-white block text-sm">${car.brand} ${car.model} (${car.year || 'N/A'}) ${offerLabel}</strong>
+                                <span class="text-white/50">${car.category || 'SUV'} - Moteur: ${fuelDisplay} | Vente: ${car.priceVente || 'N/A'} | ${imgCount} photo(s)</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -232,13 +294,21 @@
                 const car = doc.data();
 
                 document.getElementById('editing-car-id').value = carId;
+                document.getElementById('editing-car-created-at').value = car.createdAt || Date.now();
                 document.getElementById('car-brand').value = car.brand || '';
                 document.getElementById('car-model').value = car.model || '';
                 document.getElementById('car-year').value = car.year || '';
                 document.getElementById('car-category').value = car.category || 'SUV';
-                document.getElementById('car-fuel').value = car.fuel || '';
-                document.getElementById('car-trans').value = car.transmission || '';
+                
+                document.getElementById('car-fuel').value = car.fuel || 'Essence';
+                document.getElementById('car-cylinders').value = car.cylinders || '';
+
+                document.getElementById('car-trans').value = car.transmission || 'Automatique';
                 document.getElementById('car-km').value = car.km || '';
+                document.getElementById('car-start').value = car.startType || 'Start/Stop';
+                document.getElementById('car-ac').value = car.airConditioning || 'Oui';
+                document.getElementById('car-imported').value = car.isImported || 'Oui';
+                document.getElementById('car-papers').value = car.papersOk || 'Oui';
                 document.getElementById('car-offer-type').value = car.offerType || 'both';
 
                 togglePriceFields();
@@ -270,6 +340,7 @@
 
         function cancelEdit() {
             document.getElementById('editing-car-id').value = '';
+            document.getElementById('editing-car-created-at').value = '';
             document.getElementById('add-car-form').reset();
             togglePriceFields();
 
@@ -284,26 +355,37 @@
             e.preventDefault();
 
             const editingId = document.getElementById('editing-car-id').value;
+            const existingCreatedAt = document.getElementById('editing-car-created-at').value;
+            
             const folderName = document.getElementById('car-folder').value.trim();
-            const photoCount = parseInt(document.getElementById('car-photo-count').value) || 1;
+            const photoCount = parseInt(document.getElementById('car-photo-count').value) || 0;
 
             const imagesArray = [];
-            for (let i = 1; i <= photoCount; i++) {
-                imagesArray.push(`images/${folderName}/${i}.jpg`);
+            if (folderName && photoCount > 0) {
+                for (let i = 1; i <= photoCount; i++) {
+                    imagesArray.push(`images/${folderName}/${i}.jpg`);
+                }
             }
 
             const offerType = document.getElementById('car-offer-type').value;
             const carId = editingId ? editingId : 'car-' + Date.now();
+            const createdAtValue = editingId && existingCreatedAt ? Number(existingCreatedAt) : Date.now();
 
             const carData = {
                 id: carId,
+                createdAt: createdAtValue,
                 brand: document.getElementById('car-brand').value.trim(),
                 model: document.getElementById('car-model').value.trim(),
                 year: document.getElementById('car-year').value.trim(),
                 category: document.getElementById('car-category').value,
-                fuel: document.getElementById('car-fuel').value.trim(),
-                transmission: document.getElementById('car-trans').value.trim(),
+                fuel: document.getElementById('car-fuel').value,
+                cylinders: document.getElementById('car-cylinders').value,
+                transmission: document.getElementById('car-trans').value,
                 km: document.getElementById('car-km').value.trim(),
+                startType: document.getElementById('car-start').value,
+                airConditioning: document.getElementById('car-ac').value,
+                isImported: document.getElementById('car-imported').value,
+                papersOk: document.getElementById('car-papers').value,
                 offerType: offerType,
                 priceVente: document.getElementById('car-price-vente').value.trim() || null,
                 priceLocation: document.getElementById('car-price-loc').value.trim() || null,

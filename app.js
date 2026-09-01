@@ -4,82 +4,69 @@
 const defaultCars = [
     {
         id: 'kia-sportage-2022',
+        createdAt: 1000,
         brand: 'Kia',
         model: 'Sportage',
         year: '2022',
         category: 'SUV',
-        fuel: 'Essence (4 Cyl.)',
+        fuel: 'Essence',
+        cylinders: '4 Cylindres',
         transmission: 'Automatique',
         km: '25 000 km',
+        start: 'Bouton Start/Stop',
+        ac: 'Origine',
+        imported: 'Immatriculé',
+        papers: 'À jour',
         priceVente: '13 500 000',
         priceLocation: '45 000',
         images: [
             'images/kia-sportage/1.jpg',
             'images/kia-sportage/2.jpg',
-            'images/kia-sportage/3.jpg',
-            'images/kia-sportage/4.jpg',
-            'images/kia-sportage/5.jpg',
-            'images/kia-sportage/6.jpg',
-            'images/kia-sportage/7.jpg',
-            'images/kia-sportage/8.jpg',
-            'images/kia-sportage/9.jpg',
-            'images/kia-sportage/10.jpg',
-            'images/kia-sportage/11.jpg',
-            'images/kia-sportage/12.jpg',
-            'images/kia-sportage/13.jpg',
-            'images/kia-sportage/14.jpg'
+            'images/kia-sportage/3.jpg'
         ]
     },
     {
         id: 'jeep-sahara-2024',
+        createdAt: 2000,
         brand: 'Jeep',
         model: 'Wrangler Sahara',
         year: '2024',
         category: 'SUV',
-        fuel: 'Essence Hybride',
+        fuel: 'Hybride',
+        cylinders: 'V6',
         transmission: 'Automatique',
         km: '5 000 km',
+        start: 'Bouton Start/Stop',
+        ac: 'Origine',
+        imported: 'Immatriculé',
+        papers: 'À jour',
         priceVente: '45 000 000',
         priceLocation: '100 000',
         images: [
             'images/jeep-sahara/1.jpg',
-            'images/jeep-sahara/2.jpg',
-            'images/jeep-sahara/3.jpg',
-            'images/jeep-sahara/4.jpg',
-            'images/jeep-sahara/5.jpg',
-            'images/jeep-sahara/6.jpg',
-            'images/jeep-sahara/7.jpg',
-            'images/jeep-sahara/8.jpg',
-            'images/jeep-sahara/9.jpg',
-            'images/jeep-sahara/10.jpg',
-            'images/jeep-sahara/11.jpg',
-            'images/jeep-sahara/12.jpg'
+            'images/jeep-sahara/2.jpg'
         ]
     },
     {
-        id: 'kia-k5-2022',
-        brand: 'Kia',
-        model: 'K5',
-        year: '2022',
-        category: 'Berline',
+        id: 'mazda-cx5-2025',
+        createdAt: 3000,
+        brand: 'Mazda',
+        model: 'CX-5',
+        year: '2025',
+        category: 'SUV',
         fuel: 'Essence',
+        cylinders: '4 Cylindres',
         transmission: 'Automatique',
-        km: '18 000 km',
-        priceVente: '14 000 000',
-        priceLocation: '50 000',
+        km: '16 761 km',
+        start: 'Bouton Start/Stop',
+        ac: 'Origine',
+        imported: 'Immatriculé',
+        papers: 'À jour',
+        priceVente: '22 000 000',
+        priceLocation: '60 000',
         images: [
-            'images/kia-k5/1.jpg',
-            'images/kia-k5/2.jpg',
-            'images/kia-k5/3.jpg',
-            'images/kia-k5/4.jpg',
-            'images/kia-k5/5.jpg',
-            'images/kia-k5/6.jpg',
-            'images/kia-k5/7.jpg',
-            'images/kia-k5/8.jpg',
-            'images/kia-k5/9.jpg',
-            'images/kia-k5/10.jpg',
-            'images/kia-k5/11.jpg',
-            'images/kia-k5/12.jpg'
+            'images/mazda-cx5/1.jpg',
+            'images/mazda-cx5/2.jpg'
         ]
     }
 ];
@@ -121,6 +108,12 @@ async function fetchCarsFromFirestore() {
         allCars = JSON.parse(localStorage.getItem('auto_express_cars')) || defaultCars;
     }
 
+    allCars.sort((a, b) => {
+        const timeA = a.createdAt || parseInt(a.id.replace('car-', '')) || 0;
+        const timeB = b.createdAt || parseInt(b.id.replace('car-', '')) || 0;
+        return timeB - timeA;
+    });
+
     applyFilters();
 }
 
@@ -133,7 +126,6 @@ function renderCars(carList) {
 
     grid.innerHTML = '';
 
-    // Détection : si la page n'est pas "catalogue.html", c'est la page d'accueil (limite à 3)
     const isCataloguePage = document.body.classList.contains('page-catalogue');
     const carsToDisplay = isCataloguePage ? carList : carList.slice(0, 3);
 
@@ -148,65 +140,62 @@ function renderCars(carList) {
 
     carsToDisplay.forEach(car => {
         const isVente = currentMode === 'vente';
-        const priceDisplay = isVente 
-            ? `${car.priceVente} FCFA` 
-            : `${car.priceLocation} FCFA / jour`;
-        
+        const priceDisplay = isVente ? `${car.priceVente} FCFA` : `${car.priceLocation} FCFA / jour`;
         const priceLabel = isVente ? 'PRIX COMPTANT' : 'PRIX LOCATION';
         const photoCount = car.images ? car.images.length : 0;
         const mainImg = (car.images && car.images.length > 0) ? car.images[0] : '';
 
+        // Affichage combiné propre gérant l'absence potentielle de cylindres
+        const fuelText = car.fuel || 'Essence';
+        const cylText = car.cylinders ? ` (${car.cylinders})` : '';
+        const engineDisplay = `${fuelText}${cylText}`;
+
         const carCard = document.createElement('div');
-        carCard.className = 'bg-[#131924] border border-[#1d2636] rounded-xl overflow-hidden hover:border-white/30 transition-all duration-300 flex flex-col justify-between';
+        carCard.className = 'bg-[#131924] border border-white/10 rounded-2xl p-4 flex flex-col justify-between relative group hover:border-white/20 transition-all';
 
         carCard.innerHTML = `
             <div>
-                <!-- Image & Badges -->
-                <div class="relative h-56 bg-[#0c1017] overflow-hidden flex items-center justify-center">
-                    <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-lg opacity-30 scale-110" alt="">
-                    <img src="${mainImg}" alt="${car.brand} ${car.model}" class="relative z-10 w-full h-full object-contain p-2">
+                <div class="relative rounded-xl overflow-hidden mb-4 h-56 bg-[#0c1017]">
+                    <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-lg opacity-35 scale-110" alt="">
+                    <img src="${mainImg}" alt="${car.brand} ${car.model}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     
-                    <span class="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest text-white uppercase border border-white/10">
+                    <span class="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold tracking-widest text-white uppercase">
                         ${car.category}
                     </span>
 
-                    <span class="absolute top-3 right-3 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-medium tracking-wider text-white/80 uppercase border border-white/10">
-                        📷 ${photoCount} photos
+                    <span class="absolute top-3 right-3 z-20 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-medium tracking-wider text-white/80 uppercase flex items-center gap-1.5">
+                        📷 ${photoCount} PHOTOS
                     </span>
                 </div>
 
-                <!-- Infos Véhicule -->
-                <div class="p-6">
-                    <h3 class="text-lg font-bold text-white font-heading mb-4 tracking-wide">
-                        ${car.brand} ${car.model} (${car.year})
-                    </h3>
+                <h3 class="text-white font-bold text-lg mb-3">
+                    ${car.brand} ${car.model} <span class="text-white/40 font-normal text-sm">(${car.year || 'N/A'})</span>
+                </h3>
 
-                    <div class="grid grid-cols-3 gap-2 bg-[#0c1017] p-3 rounded-lg border border-[#1d2636] text-center text-[10px] mb-6">
-                        <div>
-                            <span class="text-white/40 uppercase block font-medium">Moteur</span>
-                            <span class="font-bold text-white/90 truncate block mt-0.5">${car.fuel}</span>
-                        </div>
-                        <div>
-                            <span class="text-white/40 uppercase block font-medium">Boîte</span>
-                            <span class="font-bold text-white/90 truncate block mt-0.5">${car.transmission}</span>
-                        </div>
-                        <div>
-                            <span class="text-white/40 uppercase block font-medium">Année</span>
-                            <span class="font-bold text-white/90 truncate block mt-0.5">${car.year}</span>
-                        </div>
+                <div class="grid grid-cols-3 gap-2 bg-[#0b0f17] p-3 rounded-xl border border-white/5 mb-4 text-center">
+                    <div>
+                        <div class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Moteur</div>
+                        <div class="text-xs font-semibold text-white truncate px-1" title="${engineDisplay}">${engineDisplay}</div>
+                    </div>
+                    <div class="border-x border-white/5">
+                        <div class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Boîte</div>
+                        <div class="text-xs font-semibold text-white">${car.transmission || 'Automatique'}</div>
+                    </div>
+                    <div>
+                        <div class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Année</div>
+                        <div class="text-xs font-semibold text-white">${car.year || 'N/A'}</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Prix & Bouton Action -->
-            <div class="px-6 pb-6 pt-2 border-t border-[#1d2636]/50 flex items-center justify-between gap-4">
+            <div class="flex items-center justify-between pt-2 border-t border-white/5 mt-auto">
                 <div>
-                    <span class="text-[9px] font-bold text-white/40 uppercase tracking-widest block">${priceLabel}</span>
-                    <span class="text-sm sm:text-base font-black text-white tracking-tight">${priceDisplay}</span>
+                    <span class="text-[9px] uppercase tracking-wider text-white/40 block">${priceLabel}</span>
+                    <span class="text-base font-extrabold text-white tracking-tight">${priceDisplay}</span>
                 </div>
 
-                <button onclick="openModal('${car.id}')" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-[11px] uppercase tracking-wider rounded-lg transition-all duration-300">
-                    Voir la fiche
+                <button onclick="openModal('${car.id}')" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors">
+                    VOIR LA FICHE
                 </button>
             </div>
         `;
@@ -233,10 +222,23 @@ window.openModal = function(carId) {
         ? `${selectedCar.priceVente} FCFA` 
         : `${selectedCar.priceLocation} FCFA / jour`;
 
-    document.getElementById('spec-fuel').textContent = selectedCar.fuel;
-    document.getElementById('spec-trans').textContent = selectedCar.transmission;
-    document.getElementById('spec-year').textContent = selectedCar.year;
-    document.getElementById('spec-km').textContent = selectedCar.km;
+    const startVal = selectedCar.startType || selectedCar.start || 'Bouton Start/Stop';
+    const acVal = selectedCar.airConditioning || selectedCar.ac || 'Origine';
+    const importedVal = selectedCar.isImported || selectedCar.imported || 'Immatriculé';
+    const papersVal = selectedCar.papersOk || selectedCar.papers || 'À jour';
+
+    const engineFullDisplay = selectedCar.cylinders 
+        ? `${selectedCar.fuel || 'Essence'} - ${selectedCar.cylinders}` 
+        : (selectedCar.fuel || 'Essence');
+
+    if (document.getElementById('spec-fuel')) document.getElementById('spec-fuel').textContent = engineFullDisplay;
+    if (document.getElementById('spec-trans')) document.getElementById('spec-trans').textContent = selectedCar.transmission || 'Automatique';
+    if (document.getElementById('spec-year')) document.getElementById('spec-year').textContent = selectedCar.year || 'N/A';
+    if (document.getElementById('spec-km')) document.getElementById('spec-km').textContent = selectedCar.km || 'N/A';
+    if (document.getElementById('spec-start')) document.getElementById('spec-start').textContent = startVal;
+    if (document.getElementById('spec-ac')) document.getElementById('spec-ac').textContent = acVal;
+    if (document.getElementById('spec-imported')) document.getElementById('spec-imported').textContent = importedVal;
+    if (document.getElementById('spec-papers')) document.getElementById('spec-papers').textContent = papersVal;
 
     const mainImg = document.getElementById('modal-main-img');
     if (selectedCar.images && selectedCar.images.length > 0) {
@@ -244,27 +246,28 @@ window.openModal = function(carId) {
     }
 
     const thumbnailsContainer = document.getElementById('modal-thumbnails');
-    thumbnailsContainer.innerHTML = '';
+    if (thumbnailsContainer) {
+        thumbnailsContainer.innerHTML = '';
+        if (selectedCar.images) {
+            selectedCar.images.forEach((imgSrc, index) => {
+                const thumb = document.createElement('img');
+                thumb.src = imgSrc;
+                thumb.className = `w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all ${index === 0 ? 'border-white opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`;
+                
+                thumb.onclick = () => {
+                    mainImg.src = imgSrc;
+                    const allThumbs = thumbnailsContainer.querySelectorAll('img');
+                    allThumbs.forEach(t => {
+                        t.classList.remove('border-white', 'opacity-100');
+                        t.classList.add('border-transparent', 'opacity-50');
+                    });
+                    thumb.classList.remove('border-transparent', 'opacity-50');
+                    thumb.classList.add('border-white', 'opacity-100');
+                };
 
-    if (selectedCar.images) {
-        selectedCar.images.forEach((imgSrc, index) => {
-            const thumb = document.createElement('img');
-            thumb.src = imgSrc;
-            thumb.className = `w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all ${index === 0 ? 'border-white opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`;
-            
-            thumb.onclick = () => {
-                mainImg.src = imgSrc;
-                const allThumbs = thumbnailsContainer.querySelectorAll('img');
-                allThumbs.forEach(t => {
-                    t.classList.remove('border-white', 'opacity-100');
-                    t.classList.add('border-transparent', 'opacity-50');
-                });
-                thumb.classList.remove('border-transparent', 'opacity-50');
-                thumb.classList.add('border-white', 'opacity-100');
-            };
-
-            thumbnailsContainer.appendChild(thumb);
-        });
+                thumbnailsContainer.appendChild(thumb);
+            });
+        }
     }
 
     modal.classList.remove('hidden');
@@ -303,12 +306,10 @@ window.setMode = function(mode) {
     if (mode === 'vente') {
         btnVente.className = "px-4 py-2 bg-white text-black font-bold transition-all";
         btnLocation.className = "px-4 py-2 text-white/50 hover:text-white transition-all";
-
         if (indicator) indicator.textContent = 'MODE ACHAT';
     } else {
         btnLocation.className = "px-4 py-2 bg-white text-black font-bold transition-all";
         btnVente.className = "px-4 py-2 text-white/50 hover:text-white transition-all";
-
         if (indicator) indicator.textContent = 'MODE LOCATION';
     }
 
@@ -329,7 +330,7 @@ window.applyFilters = function() {
 
         const matchesSearch = `${car.brand} ${car.model}`.toLowerCase().includes(searchVal);
         const matchesCat = (catVal === 'all') || (car.category === catVal);
-        const matchesFuel = (fuelVal === 'all') || (car.fuel === fuelVal || car.fuel.includes(fuelVal));
+        const matchesFuel = (fuelVal === 'all') || (car.fuel === fuelVal);
 
         return matchesSearch && matchesCat && matchesFuel;
     });
