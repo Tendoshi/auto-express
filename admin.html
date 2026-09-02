@@ -13,19 +13,24 @@
 </head>
 <body class="p-6 max-w-6xl mx-auto">
 
+    <!-- ÉCRAN DE CONNEXION SÉCURISÉ (FIREBASE AUTH) -->
     <div id="login-screen" class="min-h-[80vh] flex items-center justify-center">
         <div class="bg-[#0e131d] border border-white/10 p-8 rounded-2xl w-full max-w-md text-center">
             <h1 class="text-xl font-bold uppercase tracking-widest text-white mb-6 font-heading">
-                AUTO <span class="text-white/50">| ADMIN</span>
+                AUTO <span class="text-white/50">| ADMIN SÉCURISÉ</span>
             </h1>
-            <input type="password" id="admin-pass" placeholder="Mot de passe secret" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-xs mb-4 text-white focus:outline-none focus:border-amber-500">
-            <button onclick="checkAuth()" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-white/90 transition-all">
-                Se connecter
-            </button>
-            <p id="auth-error" class="text-red-500 text-xs mt-3 hidden">Mot de passe incorrect !</p>
+            <form onsubmit="loginAdmin(event)" class="space-y-4">
+                <input type="email" id="admin-email" required placeholder="Ton e-mail admin" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500">
+                <input type="password" id="admin-password" required placeholder="Mot de passe" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500">
+                <button type="submit" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-white/90 transition-all">
+                    Se connecter
+                </button>
+            </form>
+            <p id="auth-error" class="text-red-500 text-xs mt-3 hidden">E-mail ou mot de passe incorrect !</p>
         </div>
     </div>
 
+    <!-- PANNEAU DE CONTRÔLE -->
     <div id="admin-panel" class="hidden space-y-12">
         <div class="flex items-center justify-between border-b border-white/10 pb-6">
             <div>
@@ -65,7 +70,6 @@
                     </select>
                 </div>
 
-                <!-- CARBURANT (Séparé) -->
                 <div>
                     <label class="block text-white/50 mb-1">Carburant / Propulsion</label>
                     <select id="car-fuel" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
@@ -76,7 +80,6 @@
                     </select>
                 </div>
 
-                <!-- ARCHITECTURE / CYLINDRES (Option vide ajoutée) -->
                 <div>
                     <label class="block text-white/50 mb-1">Architecture / Cylindres</label>
                     <select id="car-cylinders" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
@@ -91,7 +94,6 @@
                     </select>
                 </div>
 
-                <!-- BOÎTE DE VITESSE (Transformé en select) -->
                 <div>
                     <label class="block text-white/50 mb-1">Boîte de vitesse</label>
                     <select id="car-trans" class="w-full bg-[#0e131d] border border-white/10 rounded px-3 py-2 text-white">
@@ -183,28 +185,42 @@
         </div>
     </div>
 
-    <!-- SDKs Firebase v8 -->
+    <!-- SDKs Firebase v8 (Ajout de firebase-auth.js) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="firebase-config.js"></script>
 
     <script>
-        const SECRET_PASS = "Noirmeilleur1";
+        // Connexion sécurisée via Firebase Auth
+        async function loginAdmin(e) {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            const errorEl = document.getElementById('auth-error');
 
-        function checkAuth() {
-            const input = document.getElementById('admin-pass').value;
-            if (input === SECRET_PASS) {
+            try {
+                await firebase.auth().signInWithEmailAndPassword(email, password);
+                
+                // Si réussi, on bascule l'affichage
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('admin-panel').classList.remove('hidden');
                 togglePriceFields();
                 renderAdminCars();
-            } else {
-                document.getElementById('auth-error').classList.remove('hidden');
+            } catch (error) {
+                console.error("Erreur de connexion :", error);
+                errorEl.textContent = "Accès refusé : e-mail ou mot de passe incorrect.";
+                errorEl.classList.remove('hidden');
             }
         }
 
         function logout() {
-            location.reload();
+            firebase.auth().signOut().then(() => {
+                location.reload();
+            }).catch((error) => {
+                console.error("Erreur de déconnexion", error);
+                location.reload();
+            });
         }
 
         function togglePriceFields() {
