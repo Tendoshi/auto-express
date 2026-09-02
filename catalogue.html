@@ -22,6 +22,7 @@
                 AUTO <span class="font-normal text-white/60">| EXPRESS</span>
             </a>
 
+            <!-- Navigation Desktop -->
             <nav class="hidden md:flex items-center gap-6 text-[11px] font-medium uppercase tracking-[0.2em] text-white/70">
                 <a href="index.html" class="hover:text-white transition-colors">Accueil</a>
                 <a href="catalogue.html" class="text-white font-bold border-b border-white pb-1">Catalogue</a>
@@ -29,13 +30,34 @@
                 <a href="index.html#about" class="hover:text-white transition-colors">Pourquoi Nous</a>
             </nav>
 
-            <div class="flex items-center gap-2 text-[10px] font-semibold tracking-widest">
-                <button id="btn-mode-vente" onclick="setMode('vente')" class="px-4 py-2 bg-white text-black font-bold transition-all">
-                    ACHAT
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-2 text-[10px] font-semibold tracking-widest">
+                    <button id="btn-mode-vente" onclick="setMode('vente')" class="px-4 py-2 bg-white text-black font-bold transition-all">
+                        ACHAT
+                    </button>
+                    <button id="btn-mode-location" onclick="setMode('location')" class="px-4 py-2 text-white/50 hover:text-white transition-all">
+                        LOCATION
+                    </button>
+                </div>
+
+                <!-- Bouton Hamburger -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-white focus:outline-none flex flex-col justify-between w-8 h-8">
+                    <span class="block w-full h-0.5 bg-white"></span>
+                    <span class="block w-full h-0.5 bg-white"></span>
+                    <span class="block w-full h-0.5 bg-white"></span>
                 </button>
-                <button id="btn-mode-location" onclick="setMode('location')" class="px-4 py-2 text-white/50 hover:text-white transition-all">
-                    LOCATION
-                </button>
+            </div>
+        </div>
+
+        <!-- Menu Déroulant Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-[#0e131d] border-b border-white/10 p-6 space-y-4 text-xs uppercase tracking-widest shadow-2xl">
+            <a href="index.html" class="block py-2 text-white/70 hover:text-white">Accueil</a>
+            <a href="catalogue.html" class="block py-2 text-white font-bold">Catalogue</a>
+            <a href="index.html#services" onclick="toggleMobileMenu()" class="block py-2 text-white/70 hover:text-white">Services</a>
+            <a href="index.html#about" onclick="toggleMobileMenu()" class="block py-2 text-white/70 hover:text-white">Pourquoi Nous</a>
+            <div class="pt-4 border-t border-white/10 flex gap-2">
+                <button onclick="setMode('vente'); toggleMobileMenu();" class="flex-1 py-2 bg-white text-black font-bold">Achat</button>
+                <button onclick="setMode('location'); toggleMobileMenu();" class="flex-1 py-2 border border-white/30 text-white">Location</button>
             </div>
         </div>
     </header>
@@ -129,10 +151,20 @@
         </div>
     </div>
 
+    <!-- Script JavaScript pour le menu mobile -->
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+    </script>
+
     <!-- SDKs Firebase v8 + Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="firebase-config.js"></script>
     <script src="app.js"></script>
-    </body>
+</body>
 </html>
