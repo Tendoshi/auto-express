@@ -157,6 +157,15 @@
                     <input type="text" id="car-price-loc" placeholder="ex: 80 000" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
                 </div>
 
+                <!-- Champ Statut de Location (disponible ou réservé) -->
+                <div>
+                    <label class="block text-emerald-400 font-bold mb-1">Statut de Disponibilité (Location)</label>
+                    <select id="car-rental-status" class="w-full bg-[#0e131d] border border-emerald-500/50 rounded px-3 py-2 text-emerald-400 font-bold">
+                        <option value="available">🟢 Disponible</option>
+                        <option value="booked">🟡 En location</option>
+                    </select>
+                </div>
+
                 <div class="md:col-span-3 bg-white/5 p-3 rounded-lg border border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-white/70 mb-1">Nom du sous-dossier dans <code>images/</code></label>
@@ -185,7 +194,7 @@
         </div>
     </div>
 
-    <!-- SDKs Firebase v8 (Ajout de firebase-auth.js) -->
+    <!-- SDKs Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -202,7 +211,6 @@
             try {
                 await firebase.auth().signInWithEmailAndPassword(email, password);
                 
-                // Si réussi, on bascule l'affichage
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('admin-panel').classList.remove('hidden');
                 togglePriceFields();
@@ -269,6 +277,10 @@
                     else if (car.offerType === 'location') offerLabel = '<span class="text-amber-400 font-bold">[LOCATION SEULE]</span>';
                     else offerLabel = '<span class="text-blue-400 font-bold">[VENTE & LOCATION]</span>';
 
+                    const statusBadge = car.rentalStatus === 'booked' 
+                        ? '<span class="text-amber-400 font-semibold">🟡 Réservé</span>' 
+                        : '<span class="text-emerald-400 font-semibold">🟢 Disponible</span>';
+
                     const firstImg = (car.images && car.images.length > 0) ? car.images[0] : '';
                     const imgCount = car.images ? car.images.length : 0;
                     
@@ -281,7 +293,7 @@
                             <img src="${firstImg}" class="w-12 h-12 object-cover rounded bg-black/40" alt="${car.brand}" onerror="this.src='https://via.placeholder.com/80?text=Auto'">
                             <div>
                                 <strong class="text-white block text-sm">${car.brand} ${car.model} (${car.year || 'N/A'}) ${offerLabel}</strong>
-                                <span class="text-white/50">${car.category || 'SUV'} - Moteur: ${fuelDisplay} | Vente: ${car.priceVente || 'N/A'} | ${imgCount} photo(s)</span>
+                                <span class="text-white/50">${car.category || 'SUV'} - Moteur: ${fuelDisplay} | Statut: ${statusBadge} | Vente: ${car.priceVente || 'N/A'} | ${imgCount} photo(s)</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -326,6 +338,7 @@
                 document.getElementById('car-imported').value = car.isImported || 'Oui';
                 document.getElementById('car-papers').value = car.papersOk || 'Oui';
                 document.getElementById('car-offer-type').value = car.offerType || 'both';
+                document.getElementById('car-rental-status').value = car.rentalStatus || 'available';
 
                 togglePriceFields();
 
@@ -358,6 +371,7 @@
             document.getElementById('editing-car-id').value = '';
             document.getElementById('editing-car-created-at').value = '';
             document.getElementById('add-car-form').reset();
+            document.getElementById('car-rental-status').value = 'available';
             togglePriceFields();
 
             document.getElementById('form-title').innerText = '➕ Ajouter un véhicule';
@@ -403,6 +417,7 @@
                 isImported: document.getElementById('car-imported').value,
                 papersOk: document.getElementById('car-papers').value,
                 offerType: offerType,
+                rentalStatus: document.getElementById('car-rental-status').value,
                 priceVente: document.getElementById('car-price-vente').value.trim() || null,
                 priceLocation: document.getElementById('car-price-loc').value.trim() || null,
                 images: imagesArray

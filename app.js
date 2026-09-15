@@ -19,6 +19,8 @@ const defaultCars = [
         papers: 'À jour',
         priceVente: '13 500 000',
         priceLocation: '45 000',
+        offerType: 'vente',
+        rentalStatus: 'available', // 'available' ou 'booked'
         images: [
             'images/kia-sportage/1.jpg',
             'images/kia-sportage/2.jpg',
@@ -42,6 +44,8 @@ const defaultCars = [
         papers: 'À jour',
         priceVente: '45 000 000',
         priceLocation: '100 000',
+        offerType: 'vente',
+        rentalStatus: 'booked', // En location / Réservé
         images: [
             'images/jeep-sahara/1.jpg',
             'images/jeep-sahara/2.jpg'
@@ -64,6 +68,8 @@ const defaultCars = [
         papers: 'À jour',
         priceVente: '22 000 000',
         priceLocation: '60 000',
+        offerType: 'vente',
+        rentalStatus: 'available',
         images: [
             'images/mazda-cx5/1.jpg',
             'images/mazda-cx5/2.jpg'
@@ -145,10 +151,18 @@ function renderCars(carList) {
         const photoCount = car.images ? car.images.length : 0;
         const mainImg = (car.images && car.images.length > 0) ? car.images[0] : '';
 
-        // Affichage combiné propre gérant l'absence potentielle de cylindres
         const fuelText = car.fuel || 'Essence';
         const cylText = car.cylinders ? ` (${car.cylinders})` : '';
         const engineDisplay = `${fuelText}${cylText}`;
+
+        // Badge dynamique ultra-compact pour ne pas masquer l'image
+        let availabilityBadge = '';
+        if (!isVente) {
+            const isBooked = car.rentalStatus === 'booked';
+            const badgeClass = isBooked ? 'bg-amber-500 text-black border-amber-400' : 'bg-emerald-500 text-black border-emerald-400';
+            const badgeText = isBooked ? '🟡 Loué / Réservé' : '🟢 Disponible';
+            availabilityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-extrabold tracking-wider border uppercase w-fit ${badgeClass}">${badgeText}</span>`;
+        }
 
         const carCard = document.createElement('div');
         carCard.className = 'bg-[#131924] border border-white/10 rounded-2xl p-4 flex flex-col justify-between relative group hover:border-white/20 transition-all';
@@ -159,9 +173,13 @@ function renderCars(carList) {
                     <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-lg opacity-35 scale-110" alt="">
                     <img src="${mainImg}" alt="${car.brand} ${car.model}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     
-                    <span class="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold tracking-widest text-white uppercase">
-                        ${car.category}
-                    </span>
+                    <!-- Conteneur unifié en haut à gauche pour éviter tout chevauchement -->
+                    <div class="absolute top-3 left-3 z-20 flex flex-col gap-1.5">
+                        <span class="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold tracking-widest text-white uppercase w-fit">
+                            ${car.category}
+                        </span>
+                        ${availabilityBadge}
+                    </div>
 
                     <span class="absolute top-3 right-3 z-20 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-medium tracking-wider text-white/80 uppercase flex items-center gap-1.5">
                         📷 ${photoCount} PHOTOS
@@ -221,6 +239,15 @@ window.openModal = function(carId) {
     document.getElementById('modal-price').textContent = isVente 
         ? `${selectedCar.priceVente} FCFA` 
         : `${selectedCar.priceLocation} FCFA / jour`;
+
+    const rentalDatesContainer = document.getElementById('rental-dates-container');
+    if (rentalDatesContainer) {
+        if (!isVente) {
+            rentalDatesContainer.classList.remove('hidden');
+        } else {
+            rentalDatesContainer.classList.add('hidden');
+        }
+    }
 
     const startVal = selectedCar.startType || selectedCar.start || 'Bouton Start/Stop';
     const acVal = selectedCar.airConditioning || selectedCar.ac || 'Origine';
@@ -348,10 +375,24 @@ window.sendWhatsAppOrder = function(e) {
     const clientName = document.getElementById('client-name').value;
     const phoneNumber = "2250142654427"; 
 
-    const typeMsg = currentMode === 'vente' ? 'l\'ACHAT' : 'la LOCATION';
-    const priceMsg = currentMode === 'vente' ? `${selectedCar.priceVente} FCFA` : `${selectedCar.priceLocation} FCFA / jour`;
+    const isVente = currentMode === 'vente';
+    const typeMsg = isVente ? 'l\'ACHAT' : 'la LOCATION';
+    const priceMsg = isVente ? `${selectedCar.priceVente} FCFA` : `${selectedCar.priceLocation} FCFA / jour`;
 
-    const message = `Bonjour Auto Express, je suis *${clientName}*.\n\nJe suis intéressé(e) par *${typeMsg}* du véhicule suivant :\n🚘 *${selectedCar.brand} ${selectedCar.model} (${selectedCar.year})*\n💰 Prix : ${priceMsg}\n\nMerci de me recontacter pour finaliser la procédure.`;
+    let message = `Bonjour Auto Express, je suis *${clientName}*.\n\nJe suis intéressé(e) par *${typeMsg}* du véhicule suivant :\n🚘 *${selectedCar.brand} ${selectedCar.model} (${selectedCar.year})*\n💰 Prix : ${priceMsg}`;
+
+    if (!isVente) {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        if (startDate && endDate) {
+            message += `\n📅 Période souhaitée : du *${startDate}* au *${endDate}*`;
+        } else {
+            message += `\n📅 Période souhaitée : À définir avec vous`;
+        }
+    }
+
+    message += `\n\nMerci de me recontacter pour finaliser la procédure.`;
 
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');

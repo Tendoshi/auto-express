@@ -18,7 +18,7 @@
 </head>
 <body class="bg-[#0b0f17] text-white antialiased">
 
-    <!-- 1. HEADER REIGN -->
+    <!-- 1. HEADER -->
     <header class="fixed top-0 left-0 right-0 z-40 bg-[#0b0f17]/80 backdrop-blur-md border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             
@@ -27,7 +27,7 @@
                 AUTO <span class="font-normal text-white/60">| EXPRESS</span>
             </a>
 
-            <!-- Navigation avec Dropdowns (Desktop) -->
+            <!-- Navigation (Desktop) -->
             <nav class="hidden md:flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-white/70">
                 
                 <!-- CATALOGUE -->
@@ -73,17 +73,12 @@
                     Avis Clients
                 </a>
 
-                <!-- CONTACT -->
-                <a href="#contact" class="px-4 py-2 rounded border border-transparent hover:border-white/10 hover:bg-white/10 hover:text-white transition-all duration-300">
-                    Contact
-                </a>
-
             </nav>
 
             <!-- Mode Switcher & Hamburger Mobile -->
             <div class="flex items-center gap-3">
                 <div class="hidden sm:flex items-center gap-2 text-[10px] font-semibold tracking-widest">
-                    <button id="btn-mode-vente" onclick="setMode('vente')" class="px-4 py-2 border border-white/30 text-white hover:bg-white/10 transition-all">
+                    <button id="btn-mode-vente" onclick="setMode('vente')" class="px-4 py-2 border border-white/30 text-white hover:bg-white/15 transition-all">
                         ACHAT
                     </button>
                     <button id="btn-mode-location" onclick="setMode('location')" class="px-4 py-2 text-white/50 hover:text-white transition-all">
@@ -311,7 +306,7 @@
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white text-[11px] font-semibold tracking-[0.2em] uppercase mb-4 font-heading">Contact Us</h4>
+                    <h4 class="text-white text-[11px] font-semibold tracking-[0.2em] uppercase mb-4 font-heading">Contact</h4>
                     <ul class="space-y-2.5 text-white/50 text-[11px] tracking-wider">
                         <li class="flex items-center gap-2">📍 <span>Abidjan, Côte d'Ivoire</span></li>
                         <li class="flex items-center gap-2">📞 <span>+225 01 53 11 63 02</span></li>
@@ -333,7 +328,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
                 <div>
                     <div class="h-64 sm:h-80 bg-black/40 rounded-xl overflow-hidden border border-white/10 mb-3">
-                        <img id="modal-main-img" src="" class="w-full h-full object-cover">
+                        <img id="modal-main-img" src="" class="w-full h-full object-cover" alt="Véhicule">
                     </div>
                     <div id="modal-thumbnails" class="flex gap-2 overflow-x-auto pb-2"></div>
                 </div>
@@ -357,6 +352,18 @@
                     </div>
 
                     <form onsubmit="sendWhatsAppOrder(event)" class="space-y-3">
+                        <!-- Sélecteur de dates (affiché uniquement en mode Location) -->
+                        <div id="rental-dates-container" class="hidden grid grid-cols-2 gap-2 bg-white/5 p-3 rounded-xl border border-white/10">
+                            <div>
+                                <label class="block text-[9px] uppercase text-white/50 mb-1">Du (Début)</label>
+                                <input type="date" id="start-date" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] uppercase text-white/50 mb-1">Au (Fin)</label>
+                                <input type="date" id="end-date" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                            </div>
+                        </div>
+
                         <input type="text" id="client-name" placeholder="Votre nom complet" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                         <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase rounded-lg transition-all">
                             💬 Réserver sur WhatsApp
@@ -377,6 +384,7 @@
         }
     </script>
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="firebase-config.js"></script>
