@@ -1,81 +1,7 @@
 // ==========================================
 // 1. BASE DE DONNÉES PAR DÉFAUT & ÉTAT GLOBAL
 // ==========================================
-const defaultCars = [
-    {
-        id: 'kia-sportage-2022',
-        createdAt: 1000,
-        brand: 'Kia',
-        model: 'Sportage',
-        year: '2022',
-        category: 'SUV',
-        fuel: 'Essence',
-        cylinders: '4 Cylindres',
-        transmission: 'Automatique',
-        km: '25 000 km',
-        start: 'Bouton Start/Stop',
-        ac: 'Origine',
-        imported: 'Immatriculé',
-        papers: 'À jour',
-        priceVente: '13 500 000',
-        priceLocation: '45 000',
-        offerType: 'vente',
-        rentalStatus: 'available', // 'available' ou 'booked'
-        images: [
-            'images/kia-sportage/1.jpg',
-            'images/kia-sportage/2.jpg',
-            'images/kia-sportage/3.jpg'
-        ]
-    },
-    {
-        id: 'jeep-sahara-2024',
-        createdAt: 2000,
-        brand: 'Jeep',
-        model: 'Wrangler Sahara',
-        year: '2024',
-        category: 'SUV',
-        fuel: 'Hybride',
-        cylinders: 'V6',
-        transmission: 'Automatique',
-        km: '5 000 km',
-        start: 'Bouton Start/Stop',
-        ac: 'Origine',
-        imported: 'Immatriculé',
-        papers: 'À jour',
-        priceVente: '45 000 000',
-        priceLocation: '100 000',
-        offerType: 'vente',
-        rentalStatus: 'booked', // En location / Réservé
-        images: [
-            'images/jeep-sahara/1.jpg',
-            'images/jeep-sahara/2.jpg'
-        ]
-    },
-    {
-        id: 'mazda-cx5-2025',
-        createdAt: 3000,
-        brand: 'Mazda',
-        model: 'CX-5',
-        year: '2025',
-        category: 'SUV',
-        fuel: 'Essence',
-        cylinders: '4 Cylindres',
-        transmission: 'Automatique',
-        km: '16 761 km',
-        start: 'Bouton Start/Stop',
-        ac: 'Origine',
-        imported: 'Immatriculé',
-        papers: 'À jour',
-        priceVente: '22 000 000',
-        priceLocation: '60 000',
-        offerType: 'vente',
-        rentalStatus: 'available',
-        images: [
-            'images/mazda-cx5/1.jpg',
-            'images/mazda-cx5/2.jpg'
-        ]
-    }
-];
+const defaultCars = [];
 
 let allCars = [];
 let currentMode = 'vente';
@@ -138,7 +64,7 @@ function renderCars(carList) {
     if (carsToDisplay.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full text-center py-12 text-white/40 text-xs uppercase tracking-widest">
-                Aucun véhicule ne correspond à votre recherche.
+                Aucun véhicule disponible pour le moment.
             </div>
         `;
         return;
