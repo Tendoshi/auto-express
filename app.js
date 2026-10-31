@@ -7,6 +7,19 @@ let allCars = [];
 let currentMode = 'vente';
 let selectedCar = null;
 
+// Fonction utilitaire pour basculer automatiquement entre .jpg et .jpeg en cas d'erreur
+function handleImageError(imgElement) {
+    imgElement.onerror = function() {
+        if (this.src.endsWith('.jpg')) {
+            this.src = this.src.replace('.jpg', '.jpeg');
+        } else if (this.src.endsWith('.jpeg')) {
+            this.src = this.src.replace('.jpeg', '.jpg');
+        }
+        // Évite une boucle infinie si aucune des deux extensions ne fonctionne
+        this.onerror = null;
+    };
+}
+
 // ==========================================
 // 2. INITIALISATION ET CHARGEMENT (FIRESTORE)
 // ==========================================
@@ -95,9 +108,10 @@ function renderCars(carList) {
 
         carCard.innerHTML = `
             <div>
+                <!-- Conteneur avec object-cover pour occuper tout l'espace proprement comme dans la modale -->
                 <div class="relative rounded-xl overflow-hidden mb-4 h-56 bg-[#0c1017]">
-                    <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-lg opacity-35 scale-110" alt="">
-                    <img src="${mainImg}" alt="${car.brand} ${car.model}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-lg opacity-35 scale-110 bg-blur-img" alt="">
+                    <img src="${mainImg}" alt="${car.brand} ${car.model}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 main-car-img">
                     
                     <!-- Conteneur unifié en haut à gauche pour éviter tout chevauchement -->
                     <div class="absolute top-3 left-3 z-20 flex flex-col gap-1.5">
@@ -143,6 +157,12 @@ function renderCars(carList) {
                 </button>
             </div>
         `;
+
+        // Appliquer la gestion d'erreur d'extension sur les images de la carte
+        const cardImg = carCard.querySelector('.main-car-img');
+        const blurImg = carCard.querySelector('.bg-blur-img');
+        if (cardImg) handleImageError(cardImg);
+        if (blurImg) handleImageError(blurImg);
 
         grid.appendChild(carCard);
     });
@@ -196,6 +216,7 @@ window.openModal = function(carId) {
     const mainImg = document.getElementById('modal-main-img');
     if (selectedCar.images && selectedCar.images.length > 0) {
         mainImg.src = selectedCar.images[0];
+        handleImageError(mainImg);
     }
 
     const thumbnailsContainer = document.getElementById('modal-thumbnails');
@@ -207,8 +228,11 @@ window.openModal = function(carId) {
                 thumb.src = imgSrc;
                 thumb.className = `w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all ${index === 0 ? 'border-white opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`;
                 
+                handleImageError(thumb);
+
                 thumb.onclick = () => {
                     mainImg.src = imgSrc;
+                    handleImageError(mainImg);
                     const allThumbs = thumbnailsContainer.querySelectorAll('img');
                     allThumbs.forEach(t => {
                         t.classList.remove('border-white', 'opacity-100');
